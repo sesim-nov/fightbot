@@ -29,5 +29,6 @@ Example use case: ?start /4v4 (issued when only 7 people have queued)
 
 Example use case: ?cancel /2v2
  - 2v2 queue is cleared so the bot doesn't get confused with old users next time a group of users queues that group size
+
 Example use case 2: ?cancel /me
  - User is removed from whichever group they were queued to
