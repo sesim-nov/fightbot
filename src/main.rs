@@ -1,18 +1,19 @@
 use std::sync::{Arc, Mutex};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use poise::serenity_prelude as serenity;
 use dotenv::dotenv;
 
 mod commands;
 
-struct MatchId {
-    guild_id: serenity::Guild,
+#[derive(Clone, Eq, PartialEq, Hash)]
+struct FightId {
+    guild_id: serenity::GuildId,
     size: u8,
 }
 
 struct Data {
-    queues: Arc<Mutex<HashMap<MatchId, Vec<serenity::User>>>>,
+    queues: Arc<Mutex<HashMap<FightId, HashSet<serenity::UserId>>>>,
 } // User data, which is stored and accessible in all command invocations
 type Error = Box<dyn std::error::Error + Send + Sync>;
 type Context<'a> = poise::Context<'a, Data, Error>;
