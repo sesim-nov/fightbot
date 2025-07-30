@@ -1,12 +1,18 @@
 use std::sync::{Arc, Mutex};
+use std::collections::HashMap;
 
 use poise::serenity_prelude as serenity;
 use dotenv::dotenv;
 
 mod commands;
 
+struct MatchId {
+    guild_id: serenity::Guild,
+    size: u8,
+}
+
 struct Data {
-    counter: Arc<Mutex<i32>>,
+    queues: Arc<Mutex<HashMap<MatchId, Vec<serenity::User>>>>,
 } // User data, which is stored and accessible in all command invocations
 type Error = Box<dyn std::error::Error + Send + Sync>;
 type Context<'a> = poise::Context<'a, Data, Error>;
@@ -41,7 +47,7 @@ async fn main() {
             Box::pin(async move {
                 poise::builtins::register_globally(ctx, &framework.options().commands).await?;
                 Ok(Data {
-                    counter: Arc::new(Mutex::new(0)),
+                    queues: Arc::new(Mutex::new(HashMap::new())),
                 })
             })
         })
