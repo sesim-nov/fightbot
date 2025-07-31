@@ -1,6 +1,7 @@
 use poise::serenity_prelude::{self as serenity, Mentionable, UserId};
 use crate::{Context, Error, FightId};
-
+use std::collections::{HashMap, HashSet};
+use std::sync::MutexGuard;
 
 #[poise::command(slash_command, prefix_command)]
 pub async fn age(
@@ -25,11 +26,15 @@ pub async fn reg(
             Some(u) => u,
             None => ctx.author().clone(),
         };
-        let mut map = ctx.data().queues.lock().expect("Failed to acquire lock on Mutex");
+        let user_id = UserId::from(&user);
         let fight_id = FightId {
             guild_id: ctx.guild_id().unwrap(),
             size: team_size,
         };
+        let mut map = ctx.data().queues.lock().expect("Failed to acquire lock on Mutex");
+
+        let is_already_registered = is_already_registered(&user_id, &fight_id, &map);
+
         let fight = match map.get_mut(&fight_id) {
             Some(fight) => fight,
             None => {
@@ -61,6 +66,15 @@ pub async fn reg(
     };
     ctx.say(response).await?;
     Ok(())
+}
+
+fn is_already_registered(
+    u: &UserId, 
+    fight_id: &FightId, 
+    fight_list: &MutexGuard<'_, HashMap<FightId, HashSet<UserId>>> 
+) -> bool {
+    // TODO: Write function that checks registrations. 
+    true
 }
 
 //fn handle_match_start
