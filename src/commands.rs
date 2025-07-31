@@ -1,7 +1,10 @@
-use poise::serenity_prelude::{self as serenity, Mentionable, UserId};
+use poise::serenity_prelude::{self as serenity, GuildId, Mentionable, UserId};
+use tokio::time::timeout_at;
 use crate::{Context, Error, FightId};
 use std::collections::{HashMap, HashSet};
 use std::sync::MutexGuard;
+
+static valid_fight_types: [usize; 4] = [1,2,3,4];
 
 #[poise::command(slash_command, prefix_command)]
 pub async fn age(
@@ -27,22 +30,27 @@ pub async fn reg(
             None => ctx.author().clone(),
         };
         let user_id = UserId::from(&user);
+        let guild_id = ctx.guild_id().unwrap();
         let fight_id = FightId {
-            guild_id: ctx.guild_id().unwrap(),
+            guild_id,
             size: team_size,
         };
-        let mut map = ctx.data().queues.lock().expect("Failed to acquire lock on Mutex");
+        let mut fights = ctx.data().queues.lock().expect("Failed to acquire lock on Mutex");
 
-        let is_already_registered = is_already_registered(&user_id, &fight_id, &map);
+        let is_registered = is_already_registered(&user_id, &guild_id, &fights);
 
-        let fight = match map.get_mut(&fight_id) {
-            Some(fight) => fight,
-            None => {
-                map.insert(fight_id.clone(), std::collections::HashSet::new());
-                map.get_mut(&fight_id).unwrap()
-            }
-        };
-        if fight.insert(UserId::from(user)) {
+        if is_registered {
+            "You're already registered you fucking melt.".to_owned()
+        } else {
+            let fight = match fights.get_mut(&fight_id) {
+                Some(fight) => fight,
+                None => {
+                    fights.insert(fight_id.clone(), std::collections::HashSet::new());
+                    fights.get_mut(&fight_id).unwrap()
+                }
+            };
+            fight.insert(UserId::from(user));
+            
             let mut resp = "Insertion successful".to_string();
             if fight.len() >= team_size * 2 {
                 let mut combatants: Vec<UserId> = fight.iter().map(|x| x.to_owned()).collect();
@@ -58,10 +66,10 @@ pub async fn reg(
                     let m = x.mention();
                     resp.push_str(&format!("{m}\n"));
                 }
+                // Clear queue
+                fight.clear();
             }
             resp
-        } else {
-            "You're already registered you fucking melt.".to_owned()
         }
     };
     ctx.say(response).await?;
@@ -70,11 +78,19 @@ pub async fn reg(
 
 fn is_already_registered(
     u: &UserId, 
-    fight_id: &FightId, 
+    guild_id: &GuildId, 
     fight_list: &MutexGuard<'_, HashMap<FightId, HashSet<UserId>>> 
 ) -> bool {
-    // TODO: Write function that checks registrations. 
-    true
+    valid_fight_types.iter().any(|fight_type| -> bool {
+        let tmp_match_id = FightId {
+            guild_id: guild_id.to_owned(),
+            size: *fight_type,
+        };
+        match fight_list.get(&tmp_match_id){
+            None => false,
+            Some(combat_list) => combat_list.contains(u),
+        }
+    })
 }
 
 //fn handle_match_start
