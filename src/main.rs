@@ -31,7 +31,7 @@ async fn main() {
     };
 
     let options = poise::FrameworkOptions {
-        commands: vec![commands::age(), commands::reg()],
+        commands: vec![commands::reg()],
         pre_command: |ctx| {
             Box::pin(async move { println!("Executing command: {}", ctx.command().qualified_name) })
         },
