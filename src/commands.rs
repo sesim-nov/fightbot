@@ -96,9 +96,30 @@ fn is_already_registered(
 #[poise::command(slash_command)]
 pub async fn cancel(
     ctx: Context<'_>,
-    #[description = "CMDRs per team (i.e. for 4v4 say '4')"] team_size: u8,
+    #[description = "CMDRs per team (i.e. for 4v4 say '4')"] team_size: usize,
 ) -> Result<(), Error> {
-    todo!();
+    {
+        let mut fights = ctx
+            .data()
+            .queues
+            .lock()
+            .expect("Failed to acquire lock on mutex.");
+        let guild_id = ctx.guild_id().expect("No Guild ID??");
+        let fight_id = FightId {
+            guild_id,
+            size: team_size,
+        };
+
+        match fights.get_mut(&fight_id) {
+            None => (),
+            Some(fight) => {
+                fight.clear();
+            }
+        }
+    }
+    ctx.say(format!("{team_size}v{team_size} queue cleared."))
+        .await?;
+    Ok(())
 }
 
 /// Force-starts queue even if a queue is not full.
