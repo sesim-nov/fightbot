@@ -1,5 +1,6 @@
 use crate::{Context, Error, FightId};
 use poise::serenity_prelude::{self as serenity, GuildId, Mentionable, UserId};
+use rand::seq::SliceRandom;
 use std::collections::{HashMap, HashSet};
 use std::sync::MutexGuard;
 
@@ -15,6 +16,7 @@ pub async fn reg(
     >,
 ) -> Result<(), Error> {
     let response = {
+        let mut our_rng = rand::thread_rng();
         let user = match user {
             Some(u) => u,
             None => ctx.author().clone(),
@@ -48,6 +50,7 @@ pub async fn reg(
             let mut resp = "Insertion successful".to_string();
             if fight.len() >= team_size * 2 {
                 let mut combatants: Vec<UserId> = fight.iter().map(|x| x.to_owned()).collect();
+                combatants.shuffle(&mut our_rng);
                 let center = combatants.len() / 2;
                 let other_combatants = combatants.split_off(center);
                 resp.push_str("\nMATCH START: \nTeam 1\n");
