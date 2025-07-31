@@ -1,4 +1,4 @@
-use poise::serenity_prelude::{self as serenity, UserId};
+use poise::serenity_prelude::{self as serenity, Mentionable, UserId};
 use crate::{Context, Error, FightId};
 
 
@@ -17,7 +17,7 @@ pub async fn age(
 #[poise::command(slash_command)]
 pub async fn reg(
     ctx: Context<'_>,
-    #[description = "CMDRs per team (i.e. for 4v4 say '4')"] team_size: u8,
+    #[description = "CMDRs per team (i.e. for 4v4 say '4')"] team_size: usize,
     #[description = "Selected user, leave blank to register yourself."] user: Option<serenity::User>, 
 ) -> Result<(), Error> {
     let response = {
@@ -37,14 +37,33 @@ pub async fn reg(
                 map.get_mut(&fight_id).unwrap()
             }
         };
-        match fight.insert(UserId::from(user)){
-            true => "Insertion Successful",
-            false => "You were already in that match you fucking melt."
+        if fight.insert(UserId::from(user)) {
+            let mut resp = "Insertion successful".to_string();
+            if fight.len() >= team_size * 2 {
+                let mut combatants: Vec<UserId> = fight.iter().map(|x| x.to_owned()).collect();
+                let center = combatants.len() / 2;
+                let other_combatants = combatants.split_off(center);
+                resp.push_str("\nMATCH START: \nTeam 1\n");
+                for x in combatants {
+                    let m = x.mention();
+                    resp.push_str(&format!("{m}\n"));
+                }
+                resp.push_str("TEAM 2:\n");
+                for x in other_combatants {
+                    let m = x.mention();
+                    resp.push_str(&format!("{m}\n"));
+                }
+            }
+            resp
+        } else {
+            "You're already registered you fucking melt.".to_owned()
         }
-    };//TODO: Add length checking for matches so we know when to start a match. 
+    };
     ctx.say(response).await?;
     Ok(())
 }
+
+//fn handle_match_start
 
 /// Cancels a given queue
 #[poise::command(slash_command)]

@@ -9,7 +9,7 @@ mod commands;
 #[derive(Clone, Eq, PartialEq, Hash)]
 struct FightId {
     guild_id: serenity::GuildId,
-    size: u8,
+    size: usize,
 }
 
 struct Data {
@@ -32,7 +32,7 @@ async fn main() {
     };
 
     let options = poise::FrameworkOptions{
-        commands: vec![commands::age()],
+        commands: vec![commands::age(), commands::reg()],
         pre_command: |ctx| {
             Box::pin(async move {
                 println!("Executing command: {}", ctx.command().qualified_name)
