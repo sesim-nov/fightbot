@@ -1,10 +1,9 @@
-use poise::serenity_prelude::{self as serenity, GuildId, Mentionable, UserId};
-use tokio::time::timeout_at;
 use crate::{Context, Error, FightId};
+use poise::serenity_prelude::{self as serenity, GuildId, Mentionable, UserId};
 use std::collections::{HashMap, HashSet};
 use std::sync::MutexGuard;
 
-static valid_fight_types: [usize; 4] = [1,2,3,4];
+static VALID_FIGHT_TYPES: [usize; 4] = [1, 2, 3, 4];
 
 #[poise::command(slash_command, prefix_command)]
 pub async fn age(
@@ -22,7 +21,9 @@ pub async fn age(
 pub async fn reg(
     ctx: Context<'_>,
     #[description = "CMDRs per team (i.e. for 4v4 say '4')"] team_size: usize,
-    #[description = "Selected user, leave blank to register yourself."] user: Option<serenity::User>, 
+    #[description = "Selected user, leave blank to register yourself."] user: Option<
+        serenity::User,
+    >,
 ) -> Result<(), Error> {
     let response = {
         let user = match user {
@@ -35,7 +36,11 @@ pub async fn reg(
             guild_id,
             size: team_size,
         };
-        let mut fights = ctx.data().queues.lock().expect("Failed to acquire lock on Mutex");
+        let mut fights = ctx
+            .data()
+            .queues
+            .lock()
+            .expect("Failed to acquire lock on Mutex");
 
         let is_registered = is_already_registered(&user_id, &guild_id, &fights);
 
@@ -50,7 +55,7 @@ pub async fn reg(
                 }
             };
             fight.insert(UserId::from(user));
-            
+
             let mut resp = "Insertion successful".to_string();
             if fight.len() >= team_size * 2 {
                 let mut combatants: Vec<UserId> = fight.iter().map(|x| x.to_owned()).collect();
@@ -77,16 +82,16 @@ pub async fn reg(
 }
 
 fn is_already_registered(
-    u: &UserId, 
-    guild_id: &GuildId, 
-    fight_list: &MutexGuard<'_, HashMap<FightId, HashSet<UserId>>> 
+    u: &UserId,
+    guild_id: &GuildId,
+    fight_list: &MutexGuard<'_, HashMap<FightId, HashSet<UserId>>>,
 ) -> bool {
-    valid_fight_types.iter().any(|fight_type| -> bool {
+    VALID_FIGHT_TYPES.iter().any(|fight_type| -> bool {
         let tmp_match_id = FightId {
             guild_id: guild_id.to_owned(),
             size: *fight_type,
         };
-        match fight_list.get(&tmp_match_id){
+        match fight_list.get(&tmp_match_id) {
             None => false,
             Some(combat_list) => combat_list.contains(u),
         }
@@ -104,7 +109,7 @@ pub async fn cancel(
     todo!();
 }
 
-/// Force-starts queue even if a queue is not full. 
+/// Force-starts queue even if a queue is not full.
 #[poise::command(slash_command)]
 pub async fn start(
     ctx: Context<'_>,
@@ -113,12 +118,12 @@ pub async fn start(
     todo!();
 }
 
-/// Removes target user from queue 
+/// Removes target user from queue
 #[poise::command(slash_command)]
 pub async fn rm(
     ctx: Context<'_>,
     #[description = "CMDRs per team (i.e. for 4v4 say '4')"] team_size: u8,
-    #[description = "Selected user, leave blank to krill yourself."] user: Option<serenity::User>, 
+    #[description = "Selected user, leave blank to krill yourself."] user: Option<serenity::User>,
 ) -> Result<(), Error> {
     todo!();
 }
