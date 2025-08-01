@@ -15,6 +15,8 @@ pub async fn reg(
         serenity::User,
     >,
 ) -> Result<(), Error> {
+    // Check team size and error out if it's wrong. 
+    let team_size = check_team_size(team_size)?;
     // Generate response message for our bot
     let response = {
         // RNG for randomizing the roster. 
@@ -106,6 +108,8 @@ pub async fn cancel(
     ctx: Context<'_>,
     #[description = "CMDRs per team (i.e. for 4v4 say '4')"] team_size: usize,
 ) -> Result<(), Error> {
+    // Check team size and error out if it's wrong. 
+    let team_size = check_team_size(team_size)?;
     {
         let mut fights = ctx
             .data()
@@ -138,6 +142,8 @@ pub async fn start(
 ) -> Result<(), Error> {
     // Build response string. 
     let response = {
+        // Check team size and error out if it's wrong. 
+        let team_size = check_team_size(team_size)?;
         // RNG for randomizing the roster. 
         let mut our_rng = rand::thread_rng();
 
@@ -218,4 +224,12 @@ pub async fn rm(
     };
     ctx.say(response).await?;
     Ok(())
+}
+
+fn check_team_size(team_size: usize) -> Result<usize, Error> {
+    if team_size < 5 {
+        Ok(team_size)
+    } else {
+        Err("Invalid Team Size. Valid values are numbers 1-4.".into())
+    }
 }
