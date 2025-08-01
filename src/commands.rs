@@ -23,7 +23,7 @@ pub async fn reg(
         let mut our_rng = rand::thread_rng();
 
         // If a target user was not provided by the user, assume self-registration. 
-        let user = user.unwrap_or(ctx.author().to_owned());
+        let user = check_if_bot(user.unwrap_or(ctx.author().to_owned()))?;
         let user_id = UserId::from(&user);
         let guild_id = ctx.guild_id().unwrap();
         let fight_id = FightId {
@@ -192,7 +192,7 @@ pub async fn rm(
     #[description = "Selected user, leave blank to krill yourself."] user: Option<serenity::User>,
 ) -> Result<(), Error> {
     let response = {
-        let user = user.unwrap_or(ctx.author().to_owned());
+        let user = check_if_bot(user.unwrap_or(ctx.author().to_owned()))?;
         let user_id = user.id;
         let guild_id = ctx.guild_id().ok_or("No guild id?")?;
 
@@ -231,5 +231,13 @@ fn check_team_size(team_size: usize) -> Result<usize, Error> {
         Ok(team_size)
     } else {
         Err("Invalid Team Size. Valid values are numbers 1-4.".into())
+    }
+}
+
+fn check_if_bot(user: serenity::User) -> Result<serenity::User, Error> {
+    if user.bot {
+        Err("You stupid bastard, you tried to register a bot for a fight.".into())
+    } else {
+        Ok(user)
     }
 }
