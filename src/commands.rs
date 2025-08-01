@@ -15,9 +15,12 @@ pub async fn reg(
         serenity::User,
     >,
 ) -> Result<(), Error> {
-    // Build the response for our bot to say
+    // Generate response message for our bot
     let response = {
+        // RNG for randomizing the roster. 
         let mut our_rng = rand::thread_rng();
+
+        // If a target user was not provided by the user, assume self-registration. 
         let user = match user {
             Some(u) => u,
             None => ctx.author().clone(),
@@ -28,6 +31,8 @@ pub async fn reg(
             guild_id,
             size: team_size,
         };
+
+        // Acquire Mutex for the list of fight queues. 
         let mut fights = ctx
             .data()
             .queues
@@ -39,6 +44,7 @@ pub async fn reg(
         if is_registered {
             "You're already registered you fucking melt.".to_owned()
         } else {
+            // Find the fight the user requested registration for. If it diesn't exist, create it. 
             let fight = match fights.get_mut(&fight_id) {
                 Some(fight) => fight,
                 None => {
@@ -46,11 +52,16 @@ pub async fn reg(
                     fights.get_mut(&fight_id).unwrap()
                 }
             };
+            // Add the user to the selected fight. This should always succeed if 
+            // is_already_registered is working correctly. 
             fight.insert(UserId::from(&user));
             let men = user.mention();
             let mut resp =
                 format!("Successfully registered {men} for a {team_size}v{team_size}").to_string();
+
+            // Check if the fight is full
             if fight.len() >= team_size * 2 {
+                // If the fight is full, print out the teams and clear the queue. 
                 let mut combatants: Vec<UserId> = fight.iter().map(|x| x.to_owned()).collect();
                 combatants.shuffle(&mut our_rng);
                 let center = combatants.len() / 2;
