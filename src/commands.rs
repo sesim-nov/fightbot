@@ -4,7 +4,7 @@ use rand::seq::SliceRandom;
 use std::collections::{HashMap, HashSet};
 use std::sync::MutexGuard;
 
-static VALID_FIGHT_TYPES: [usize; 4] = [1, 2, 3, 4];
+static VALID_FIGHT_TYPES: [usize; 4] = [2, 3, 4];
 
 /// Registers a commander for a fight
 #[poise::command(slash_command)]
@@ -15,14 +15,14 @@ pub async fn reg(
         serenity::User,
     >,
 ) -> Result<(), Error> {
-    // Check team size and error out if it's wrong. 
+    // Check team size and error out if it's wrong.
     let team_size = check_team_size(team_size)?;
     // Generate response message for our bot
     let response = {
-        // RNG for randomizing the roster. 
+        // RNG for randomizing the roster.
         let mut our_rng = rand::thread_rng();
 
-        // If a target user was not provided by the user, assume self-registration. 
+        // If a target user was not provided by the user, assume self-registration.
         let user = check_if_bot(user.unwrap_or(ctx.author().to_owned()))?;
         let user_id = UserId::from(&user);
         let guild_id = ctx.guild_id().unwrap();
@@ -31,7 +31,7 @@ pub async fn reg(
             size: team_size,
         };
 
-        // Acquire Mutex for the list of fight queues. 
+        // Acquire Mutex for the list of fight queues.
         let mut fights = ctx
             .data()
             .queues
@@ -43,7 +43,7 @@ pub async fn reg(
         if is_registered {
             "You're already registered you fucking melt.".to_owned()
         } else {
-            // Find the fight the user requested registration for. If it diesn't exist, create it. 
+            // Find the fight the user requested registration for. If it diesn't exist, create it.
             let fight = match fights.get_mut(&fight_id) {
                 Some(fight) => fight,
                 None => {
@@ -51,8 +51,8 @@ pub async fn reg(
                     fights.get_mut(&fight_id).unwrap()
                 }
             };
-            // Add the user to the selected fight. This should always succeed if 
-            // is_already_registered is working correctly. 
+            // Add the user to the selected fight. This should always succeed if
+            // is_already_registered is working correctly.
             fight.insert(UserId::from(&user));
             let men = user.mention();
             let mut resp =
@@ -60,7 +60,7 @@ pub async fn reg(
 
             // Check if the fight is full
             if fight.len() >= team_size * 2 {
-                // If the fight is full, print out the teams and clear the queue. 
+                // If the fight is full, print out the teams and clear the queue.
                 let mut combatants: Vec<UserId> = fight.iter().map(|x| x.to_owned()).collect();
                 combatants.shuffle(&mut our_rng);
                 let center = combatants.len() / 2;
@@ -108,7 +108,7 @@ pub async fn cancel(
     ctx: Context<'_>,
     #[description = "CMDRs per team (i.e. for 4v4 say '4')"] team_size: usize,
 ) -> Result<(), Error> {
-    // Check team size and error out if it's wrong. 
+    // Check team size and error out if it's wrong.
     let team_size = check_team_size(team_size)?;
     {
         let mut fights = ctx
@@ -140,27 +140,29 @@ pub async fn start(
     ctx: Context<'_>,
     #[description = "CMDRs per team (i.e. for 4v4 say '4')"] team_size: usize,
 ) -> Result<(), Error> {
-    // Build response string. 
+    // Build response string.
     let response = {
-        // Check team size and error out if it's wrong. 
+        // Check team size and error out if it's wrong.
         let team_size = check_team_size(team_size)?;
-        // RNG for randomizing the roster. 
+        // RNG for randomizing the roster.
         let mut our_rng = rand::thread_rng();
 
-        let fight_id = FightId{
+        let fight_id = FightId {
             guild_id: ctx.guild_id().ok_or("No Guild ID in context.")?,
             size: team_size,
         };
 
         let mut resp = String::new();
 
-        // I don't want this to panic, so I convert the error instead of using an expect. 
-        let mut fights = match ctx.data().queues.lock(){
+        // I don't want this to panic, so I convert the error instead of using an expect.
+        let mut fights = match ctx.data().queues.lock() {
             Ok(a) => Ok(a),
             Err(_) => Err("Failed to acquire mutex."),
         }?;
 
-        let fight = fights.get_mut(&fight_id).ok_or("No fight found with those parameters.")?;
+        let fight = fights
+            .get_mut(&fight_id)
+            .ok_or("No fight found with those parameters.")?;
 
         let mut combatants: Vec<UserId> = fight.iter().map(|x| x.to_owned()).collect();
         combatants.shuffle(&mut our_rng);
@@ -196,14 +198,14 @@ pub async fn rm(
         let user_id = user.id;
         let guild_id = ctx.guild_id().ok_or("No guild id?")?;
 
-        // I don't want this to panic, so I convert the error instead of using an expect. 
-        let mut fights = match ctx.data().queues.lock(){
+        // I don't want this to panic, so I convert the error instead of using an expect.
+        let mut fights = match ctx.data().queues.lock() {
             Ok(a) => Ok(a),
             Err(_) => Err("Failed to acquire mutex."),
         }?;
 
         let user_removed = VALID_FIGHT_TYPES.iter().any(|&fight_type| -> bool {
-            let mut fight_id = FightId{
+            let mut fight_id = FightId {
                 guild_id,
                 size: fight_type,
             };
@@ -227,10 +229,10 @@ pub async fn rm(
 }
 
 fn check_team_size(team_size: usize) -> Result<usize, Error> {
-    if team_size < 5 {
+    if team_size < 5 && team_size > 1 {
         Ok(team_size)
     } else {
-        Err("Invalid Team Size. Valid values are numbers 1-4.".into())
+        Err("Invalid Team Size. Valid values are numbers 2-4.".into())
     }
 }
 
