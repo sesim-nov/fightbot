@@ -100,8 +100,6 @@ fn is_already_registered(
     })
 }
 
-//fn handle_match_start
-
 /// Cancels a given queue
 #[poise::command(slash_command)]
 pub async fn cancel(
