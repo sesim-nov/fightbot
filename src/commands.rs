@@ -4,7 +4,7 @@ use rand::seq::SliceRandom;
 use std::collections::{HashMap, HashSet};
 use std::sync::MutexGuard;
 
-static VALID_FIGHT_TYPES: [usize; 4] = [2, 3, 4];
+static VALID_FIGHT_TYPES: [usize; 3] = [2, 3, 4];
 
 /// Registers a commander for a fight
 #[poise::command(slash_command)]
