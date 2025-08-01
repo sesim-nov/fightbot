@@ -15,6 +15,7 @@ pub async fn reg(
         serenity::User,
     >,
 ) -> Result<(), Error> {
+    // Build the response for our bot to say
     let response = {
         let mut our_rng = rand::thread_rng();
         let user = match user {
@@ -45,9 +46,10 @@ pub async fn reg(
                     fights.get_mut(&fight_id).unwrap()
                 }
             };
-            fight.insert(UserId::from(user));
-
-            let mut resp = "Insertion successful".to_string();
+            fight.insert(UserId::from(&user));
+            let men = user.mention();
+            let mut resp =
+                format!("Successfully registered {men} for a {team_size}v{team_size}").to_string();
             if fight.len() >= team_size * 2 {
                 let mut combatants: Vec<UserId> = fight.iter().map(|x| x.to_owned()).collect();
                 combatants.shuffle(&mut our_rng);
