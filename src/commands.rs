@@ -187,5 +187,37 @@ pub async fn rm(
     ctx: Context<'_>,
     #[description = "Selected user, leave blank to krill yourself."] user: Option<serenity::User>,
 ) -> Result<(), Error> {
-    todo!();
+    let response = {
+        let user = user.unwrap_or(ctx.author().to_owned());
+        let user_id = user.id;
+        let guild_id = ctx.guild_id().ok_or("No guild id?")?;
+
+        // I don't want this to panic, so I convert the error instead of using an expect. 
+        let mut fights = match ctx.data().queues.lock(){
+            Ok(a) => Ok(a),
+            Err(_) => Err("Failed to acquire mutex."),
+        }?;
+
+        let user_removed = VALID_FIGHT_TYPES.iter().any(|&fight_type| -> bool {
+            let mut fight_id = FightId{
+                guild_id,
+                size: fight_type,
+            };
+
+            if let Some(fight) = fights.get_mut(&mut fight_id) {
+                fight.remove(&user_id)
+            } else {
+                false
+            }
+        });
+
+        let mention = user_id.mention();
+        if user_removed {
+            format!("User {mention} removed from queues.").to_owned()
+        } else {
+            format!("User {mention} was not present in any queues. You're a moron.").to_owned()
+        }
+    };
+    ctx.say(response).await?;
+    Ok(())
 }
