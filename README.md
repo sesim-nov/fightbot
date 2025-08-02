@@ -6,6 +6,7 @@ Reasons for making our own instead of using the other two available options:
  - Open source. Do not trust code you cannot review.
  - Uses app commands (slash commands) in Discord. This means it doesn't need to read messages in your server, unlike the other bots that use context triggers (eg "?r").
  - Minimal permission requirement. We disliked that the aforementioned alternatives required global permission to view every channel in your server and read every message in them.
+ - No need to create multiple channels for queue sizes and clutter up your server.
 
 # Installing the Bot  
 You may use the below link to add the bot to your server. It does not require any default global permissions.  
