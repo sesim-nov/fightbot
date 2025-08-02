@@ -41,3 +41,6 @@ The third function `/rm` is to remove a user from a queue and will ask for `user
  - This may also be used for self removal by entering your own username.
 
 The final function `/cancel` is used in conjunction with `team_size` to clear a queue of a given size.
+
+#  
+For questions or tech support, DM @desmo1199 (Franz Turdinand) on discord
