@@ -4,7 +4,7 @@ Simple bot for queuing 2v2-4v4's with minimal permissions.
 This bot handles differently sized queues without needing multiple channels, and more features are being planned.  
 Reasons for making our own instead of using the other two available options:
  - Open source. Do not trust code you cannot review.
- - Uses app commands (slash commands) in Discord. This means it doesn't need to read messages in your server, unlike the other bots that use context triggers (eg "?").
+ - Uses app commands (slash commands) in Discord. This means it doesn't need to read messages in your server, unlike the other bots that use context triggers (eg "?r").
  - Minimal permission requirement. We disliked that the aforementioned alternatives required global permission to view every channel in your server and read every message in them.
 
 # Installing the Bot  
