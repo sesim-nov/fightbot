@@ -8,7 +8,7 @@ Reasons for making our own instead of using the other two available options:
  - Minimal permission requirement. We disliked that the aforementioned alternatives required global permission to view every channel in your server and read every message in them.
  - No need to create multiple channels for queue sizes and clutter up your server.
 
-See the [Issue Tracker](https://github.com/FranzTurdinand/fightbot/issues) to planned upcoming features (and feel free to add your own!)
+See the [Issue Tracker](https://github.com/FranzTurdinand/fightbot/issues) to view planned upcoming features (and feel free to add your own!)
 
 # Installing the Bot  
 You may use the below link to add the bot to your server. It does not require any default global permissions.  
