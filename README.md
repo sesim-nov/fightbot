@@ -19,9 +19,10 @@ You must then add the **Use Application Commands** permission to any user role y
 # How To Use
 
 It uses "/" as the trigger. Currently the following possible commands are available:
- - /reg
- - /start
- - /rm
+ - `/reg`
+ - `/start`
+ - `/rm`
+ - `/cancel`
 
 The first function `/reg` will present a text field that asks for `team_size` with the following options:  
  - Enter `2` for 2v2: `/reg` `team_size: 2`  
@@ -35,5 +36,8 @@ When a queue size reaches its maximum threshold (4 for 2v2, etc), the bot will a
 
 The second function `/start` will ask for `team_size` and will force a return of the team breakdown post in the event of uneven team sizes, eg if you have only 7 people queued for a 4v4.
 
-The third function `rm` is to remove a user from a queue and will ask for `user`  
- - Example Use: `rm` `user: @frogvoid`
+The third function `/rm` is to remove a user from a queue and will ask for `user`  
+ - Example Use: `/rm` `user: @frogvoid`
+ - This may also be used for self removal by entering your own username.
+
+The final function `/cancel` is used in conjunction with `team_size` to clear a queue of a given size
