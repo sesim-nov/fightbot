@@ -2,18 +2,18 @@
 Simple bot for queuing 2v2-4v4's with minimal permissions.  
 
 This bot handles differently sized queues without needing multiple channels, and more features are being planned.  
-Reasons for making our own instead of using PLAG's or Kaine's APES bot:
- - Open source.
- - Uses app commands (slash commands) in Discord. This means it doesn't actually need to read messages in your server, unlike the other bots that use "?" and other triggers.
+Reasons for making our own instead of using the other two available options:
+ - Open source. Do not trust code you cannot review.
+ - Uses app commands (slash commands) in Discord. This means it doesn't need to read messages in your server, unlike the other bots that use context triggers (eg "?").
  - Minimal permission requirement. We disliked that the aforementioned alternatives required global permission to view every channel in your server and read every message in them.
 
 # Installing the Bot  
-You may use the below link to add the bot to your server. The only default permission it requires is Send Messages.  
-Do not allow bots more default permissions than this unless you trust the authors to read everything on your server.  
+You may use the below link to add the bot to your server. It does not require any default global permissions.  
+Do not allow bots default permissions unless you trust the authors to read everything on your server.  
 **LINK TO INSTALL:** https://discord.com/oauth2/authorize?client_id=1399703839656902718  
 
-Once added to your server, it will create a role for itself. In order to make it functional, you must add either the Bot (as a user) **or** it's role to the channel or channels you would like it to function in, and grant it the **View Channel** and **Send Messages** permissions.  
-You must then add the **Use Application Commands** permission to any user role you would like to be able to use the Bot in that channel.
+Once added to your server, go into your **Server Settings,** go to **Integrations** and select the Bot ("Pipcheck"). In this window you may deauthorize the "everyone" role and add any specific roles you want to be able to use the Bot, as well as restrict the bot to a specific channel or channels you want it to work in.
+You must then add the **Use Application Commands** permission to any user role you would like to be able to use the Bot in that channel's role settings.
 
 
 # How To Use
