@@ -37,7 +37,7 @@ The `/reg` function will present a text field that asks for `team_size` with the
 
 When a queue size reaches its maximum threshold (4 for 2v2, etc), the bot will automatically post a comment listing the randomized team breakdown.  
 
-The `/start` dunxtion will ask for `team_size` and will force a return of the team breakdown post in the event of uneven team sizes, eg if you have only 7 people queued for a 4v4.
+The `/start` function will ask for `team_size` and will force a return of the team breakdown post in the event of uneven team sizes, eg if you have only 7 people queued for a 4v4.
 
 The `/rm` function is to remove a user from a queue and will optionally ask for `user`  
  - Simply run `/rm` and hit enter to remove yourself from any queue you are registered for.
