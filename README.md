@@ -39,11 +39,11 @@ When a queue size reaches its maximum threshold (4 for 2v2, etc), the bot will a
 
 The `/start` dunxtion will ask for `team_size` and will force a return of the team breakdown post in the event of uneven team sizes, eg if you have only 7 people queued for a 4v4.
 
-The `/rm` function is to remove a user from a queue and will ask for `user`  
- - Example Use: `/rm` `user: @frogvoid`
- - This may also be used for self removal by entering your own username.
+The `/rm` function is to remove a user from a queue and will optionally ask for `user`  
+ - Simply run `/rm` and hit enter to remove yourself from any queue you are registered for.
+ - Add the `user` parameter to remove someone else, eg `/rm` `user: @frogvoid`
 
-The `/cancel` function is used in conjunction with `team_size` to clear a queue of a given size.
+The `/cancel` function is used in conjunction with `team_size` to clear a queue for a given group.
 
 #  
 Made by @sesim-nov, @cmdr-wdx, @franzturdinand  
