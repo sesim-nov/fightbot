@@ -3,7 +3,7 @@ Simple bot for queuing 2v2-4v4's with minimal permissions.
 
 This bot handles differently sized queues without needing multiple channels or compromising server security.  
 
-# Why not use PLAG's or the APES bots?
+# Why not use the PLAG or APES bots?
 Reasons for making our own instead of using the other two available options:
  - Open source. Do not trust code you cannot review.
  - No need to create multiple channels for queue sizes, reducing channel clutter and server complexity.
