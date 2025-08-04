@@ -1,12 +1,13 @@
 # fightbot
 Simple bot for queuing 2v2-4v4's with minimal permissions.  
 
-This bot handles differently sized queues without needing multiple channels.  
+This bot handles differently sized queues without needing multiple channels or compromising server security.  
+
+#
 Reasons for making our own instead of using the other two available options:
  - Open source. Do not trust code you cannot review.
- - Uses app commands (slash commands) in Discord. This means it doesn't need to read messages in your server, unlike the other bots that use context triggers (eg "?r").
- - Minimal permission requirement. We disliked that the aforementioned alternatives required global permission to view every channel in your server and read every message in them.
- - No need to create multiple channels for queue sizes and clutter up your server.
+ - No need to create multiple channels for queue sizes, reducing channel clutter and server complexity.
+ - Minimal permissions requirements and a more secure design. Other bots use context triggers (`?r`) which requires them to scan all messages in the server looking for their trigger. Ours uses proper app commands (slash commands) instead, which are built into the Discord architecture and allow the bot to be interacted with directly. This eliminates the need for it to be able to read messages at all, so you no longer need to give an unknown party the ability to view all channels and content in your server.
 
 See the [Issue Tracker](https://github.com/FranzTurdinand/fightbot/issues) to view planned upcoming features (and feel free to add your own!)
 
