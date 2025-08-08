@@ -4,7 +4,7 @@ use rand::seq::SliceRandom;
 use std::collections::{HashMap, HashSet};
 use std::sync::MutexGuard;
 
-static VALID_FIGHT_TYPES: [usize; 3] = [2, 3, 4];
+static VALID_FIGHT_TYPES: [usize; 8] = [1, 2, 3, 4, 5, 6, 7, 8];
 
 /// Registers a commander for a fight
 #[poise::command(slash_command)]
@@ -229,7 +229,7 @@ pub async fn rm(
 }
 
 fn check_team_size(team_size: usize) -> Result<usize, Error> {
-    if team_size < 5 && team_size > 1 {
+    if team_size < 9 && team_size > 0 {
         Ok(team_size)
     } else {
         Err("Invalid Team Size. Valid values are numbers 2-4.".into())
