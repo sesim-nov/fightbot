@@ -228,6 +228,15 @@ pub async fn rm(
     Ok(())
 }
 
+/// Test buttons
+#[poise::command(slash_command)]
+pub async fn button_test(
+    ctx: Context<'_>,
+) -> Result<(), Error> {
+    todo!();
+    Ok(())
+}
+
 fn check_team_size(team_size: usize) -> Result<usize, Error> {
     if team_size < 9 && team_size > 0 {
         Ok(team_size)

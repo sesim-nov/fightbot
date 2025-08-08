@@ -36,6 +36,7 @@ async fn main() {
             commands::cancel(),
             commands::start(),
             commands::rm(),
+            commands::button_test(),
         ],
         pre_command: |ctx| {
             Box::pin(async move { println!("Executing command: {}", ctx.command().qualified_name) })
