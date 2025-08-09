@@ -49,6 +49,15 @@ async fn main() {
         .setup(|ctx, _ready, framework| {
             Box::pin(async move {
                 poise::builtins::register_globally(ctx, &framework.options().commands).await?;
+                if let Ok(guild_id_str) = std::env::var("TEST_GUILD_ID") {
+                    println!("Fast-registering to guild: {guild_id_str}");
+                    poise::builtins::register_in_guild(
+                        ctx,
+                        &framework.options().commands,
+                        serenity::GuildId::new(u64::from_str_radix(&guild_id_str, 10).unwrap()),
+                    )
+                    .await?;
+                };
                 Ok(Data {
                     queues: Arc::new(Mutex::new(HashMap::new())),
                 })
