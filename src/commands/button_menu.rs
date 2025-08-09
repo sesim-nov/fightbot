@@ -4,6 +4,8 @@ use poise::serenity_prelude::{
     CreateInteractionResponseMessage, CreateSelectMenu, CreateSelectMenuOption, 
 };
 
+use crate::commands::VALID_FIGHT_TYPES;
+
 /// Main Menu
 #[poise::command(slash_command)]
 pub async fn main_menu(ctx: Context<'_>) -> Result<(), Error> {
@@ -56,10 +58,14 @@ async fn draw_casual_menu(ctx: Context<'_>, mci: ComponentInteraction) -> Result
     let embed = CreateEmbed::new()
         .color(serenity::Color::DARK_GREEN)
         .field("Casual Menu", "Select the Team Size", false);
+    let menu_options: Vec<CreateSelectMenuOption> = VALID_FIGHT_TYPES.iter().map(|i| {
+        let label = format!("{i}v{i}");
+        CreateSelectMenuOption::new(label, i.to_string())
+    }).collect();
     let casual_menu = CreateSelectMenu::new(
         "casual_menu",
         serenity::CreateSelectMenuKind::String {
-            options: vec![CreateSelectMenuOption::new("2v2", "2")],
+            options: menu_options,
         },
     );
     let resp_msg = CreateInteractionResponseMessage::new()
