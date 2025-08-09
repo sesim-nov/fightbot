@@ -1,12 +1,9 @@
+use crate::commands::VALID_FIGHT_TYPES;
 use crate::{Context, Error, FightId};
-use poise::serenity_prelude::{
-    self as serenity, GuildId,
-    Mentionable, UserId,
-};
+use poise::serenity_prelude::{self as serenity, GuildId, Mentionable, UserId};
 use rand::seq::SliceRandom;
 use std::collections::{HashMap, HashSet};
 use std::sync::MutexGuard;
-use crate::commands::VALID_FIGHT_TYPES;
 
 /// Registers a commander for a fight
 #[poise::command(slash_command)]

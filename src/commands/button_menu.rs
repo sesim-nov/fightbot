@@ -1,7 +1,7 @@
 use crate::{Context, Error};
 use poise::serenity_prelude::{
     self as serenity, ComponentInteraction, CreateEmbed, CreateInteractionResponse,
-    CreateInteractionResponseMessage, CreateSelectMenu, CreateSelectMenuOption, 
+    CreateInteractionResponseMessage, CreateSelectMenu, CreateSelectMenuOption,
 };
 
 use crate::commands::VALID_FIGHT_TYPES;
@@ -55,13 +55,18 @@ async fn main_menu_responder(ctx: Context<'_>) -> Result<(), Error> {
 }
 
 async fn draw_casual_menu(ctx: Context<'_>, mci: ComponentInteraction) -> Result<(), Error> {
-    let embed = CreateEmbed::new()
-        .color(serenity::Color::DARK_GREEN)
-        .field("Casual Menu", "Select the Team Size", false);
-    let menu_options: Vec<CreateSelectMenuOption> = VALID_FIGHT_TYPES.iter().map(|i| {
-        let label = format!("{i}v{i}");
-        CreateSelectMenuOption::new(label, i.to_string())
-    }).collect();
+    let embed = CreateEmbed::new().color(serenity::Color::DARK_GREEN).field(
+        "Casual Menu",
+        "Select the Team Size",
+        false,
+    );
+    let menu_options: Vec<CreateSelectMenuOption> = VALID_FIGHT_TYPES
+        .iter()
+        .map(|i| {
+            let label = format!("{i}v{i}");
+            CreateSelectMenuOption::new(label, i.to_string())
+        })
+        .collect();
     let casual_menu = CreateSelectMenu::new(
         "casual_menu",
         serenity::CreateSelectMenuKind::String {
