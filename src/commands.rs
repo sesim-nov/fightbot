@@ -1,7 +1,12 @@
 use crate::{Context, Error, FightId};
-use poise::serenity_prelude::{self as serenity, GuildId, Mentionable, UserId};
+use poise::serenity_prelude::{
+    self as serenity, ComponentInteraction, CreateEmbed, CreateInteractionResponse,
+    CreateInteractionResponseMessage, CreateSelectMenu, CreateSelectMenuOption, GuildId,
+    Mentionable, UserId,
+};
 use rand::seq::SliceRandom;
 use std::collections::{HashMap, HashSet};
+use std::default;
 use std::sync::MutexGuard;
 
 static VALID_FIGHT_TYPES: [usize; 8] = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -238,7 +243,11 @@ pub async fn main_menu(ctx: Context<'_>) -> Result<(), Error> {
     let components = serenity::CreateActionRow::Buttons(buttons);
     let embed = serenity::CreateEmbed::new()
         .color(serenity::Color::DARK_ORANGE)
-        .field("PVP Bot: Main Menu", "Welcome to the main menu. Do you want to start an unranked or ranked match?", false);
+        .field(
+            "PVP Bot: Main Menu",
+            "Welcome to the main menu. Do you want to start an unranked or ranked match?",
+            false,
+        );
 
     let reply = poise::CreateReply::default()
         .embed(embed)
@@ -255,13 +264,7 @@ async fn main_menu_responder(ctx: Context<'_>) -> Result<(), Error> {
         .await
     {
         if mci.data.custom_id == "casual_match" {
-            mci.create_response(
-                ctx.serenity_context(),
-                serenity::CreateInteractionResponse::Message(
-                    serenity::CreateInteractionResponseMessage::new().content("Casual Match Start"),
-                ),
-            )
-            .await?;
+            draw_casual_menu(ctx, mci).await?;
             break;
         } else if mci.data.custom_id == "ranked_match" {
             mci.create_response(
@@ -275,6 +278,24 @@ async fn main_menu_responder(ctx: Context<'_>) -> Result<(), Error> {
             break;
         }
     }
+    Ok(())
+}
+
+async fn draw_casual_menu(ctx: Context<'_>, mci: ComponentInteraction) -> Result<(), Error> {
+    let embed = CreateEmbed::new()
+        .color(serenity::Color::DARK_GREEN)
+        .field("Casual Menu", "Select the Team Size", false);
+    let casual_menu = CreateSelectMenu::new(
+        "casual_menu",
+        serenity::CreateSelectMenuKind::String {
+            options: vec![CreateSelectMenuOption::new("2v2", "2")],
+        },
+    );
+    let resp_msg = CreateInteractionResponseMessage::new()
+        .select_menu(casual_menu)
+        .embed(embed);
+    let resp = CreateInteractionResponse::UpdateMessage(resp_msg);
+    mci.create_response(ctx.serenity_context(), resp).await?;
     Ok(())
 }
 
