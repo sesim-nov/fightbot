@@ -246,6 +246,10 @@ pub async fn main_menu(ctx: Context<'_>) -> Result<(), Error> {
 
     ctx.send(reply).await?;
 
+    main_menu_responder(ctx).await
+}
+
+async fn main_menu_responder(ctx: Context<'_>) -> Result<(), Error> {
     while let Some(mci) = serenity::ComponentInteractionCollector::new(ctx.serenity_context())
         .timeout(std::time::Duration::from_secs(120))
         .await
@@ -271,7 +275,6 @@ pub async fn main_menu(ctx: Context<'_>) -> Result<(), Error> {
             break;
         }
     }
-
     Ok(())
 }
 
