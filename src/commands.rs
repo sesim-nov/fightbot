@@ -1,5 +1,7 @@
 use crate::{Context, Error, FightId};
-use poise::serenity_prelude::{self as serenity, GuildId, Mentionable, UserId};
+use poise::serenity_prelude::{
+    self as serenity, CreateInteractionResponseMessage, GuildId, Mentionable, UserId,
+};
 use rand::seq::SliceRandom;
 use std::collections::{HashMap, HashSet};
 use std::sync::MutexGuard;
@@ -230,18 +232,30 @@ pub async fn rm(
 
 /// Test buttons
 #[poise::command(slash_command)]
-pub async fn button_test(
-    ctx: Context<'_>,
-) -> Result<(), Error> {
-    let button = serenity::CreateButton::new("test_modal")
-        .label("Test Button");
+pub async fn button_test(ctx: Context<'_>) -> Result<(), Error> {
+    let button = serenity::CreateButton::new("test_button").label("Hello");
     let components = serenity::CreateActionRow::Buttons(vec![button]);
 
     let reply = poise::CreateReply::default()
         .components(vec![components])
-        .content("Hi. This button doe nothing.");
+        .content("Click this button to say hi.");
 
     ctx.send(reply).await?;
+
+    while let Some(mci) = serenity::ComponentInteractionCollector::new(ctx.serenity_context())
+        .timeout(std::time::Duration::from_secs(120))
+        .filter(move |mci| mci.data.custom_id == "test_button")
+        .await
+    {
+        mci.create_response(
+            ctx.serenity_context(),
+            serenity::CreateInteractionResponse::Message(
+                CreateInteractionResponseMessage::new().content("Hi."),
+            ),
+        )
+        .await?;
+    }
+
     Ok(())
 }
 
