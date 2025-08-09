@@ -228,6 +228,46 @@ pub async fn rm(
     Ok(())
 }
 
+/// Main Menu
+#[poise::command(slash_command)]
+pub async fn main_menu(ctx: Context<'_>) -> Result<(), Error> {
+    let buttons = vec![
+        serenity::CreateButton::new("casual_match").label("Casual Match"),
+        serenity::CreateButton::new("ranked_match").label("Sweatlord Match (coming soon)"),
+    ];
+    let components = serenity::CreateActionRow::Buttons(buttons);
+
+    let reply = poise::CreateReply::default().components(vec![components]);
+
+    ctx.send(reply).await?;
+
+    while let Some(mci) = serenity::ComponentInteractionCollector::new(ctx.serenity_context())
+        .timeout(std::time::Duration::from_secs(120))
+        .await
+    {
+        if mci.data.custom_id == "casual_match" {
+            mci.create_response(
+                ctx.serenity_context(),
+                serenity::CreateInteractionResponse::Message(
+                    serenity::CreateInteractionResponseMessage::new().content("Casual Match Start"),
+                ),
+            )
+            .await?;
+        } else if mci.data.custom_id == "ranked_match" {
+            mci.create_response(
+                ctx.serenity_context(),
+                serenity::CreateInteractionResponse::Message(
+                    serenity::CreateInteractionResponseMessage::new()
+                        .content("Let's get sweaty, baby."),
+                ),
+            )
+            .await?;
+        }
+    }
+
+    Ok(())
+}
+
 fn check_team_size(team_size: usize) -> Result<usize, Error> {
     if team_size < 9 && team_size > 0 {
         Ok(team_size)
