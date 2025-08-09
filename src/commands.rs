@@ -236,8 +236,13 @@ pub async fn main_menu(ctx: Context<'_>) -> Result<(), Error> {
         serenity::CreateButton::new("ranked_match").label("Sweatlord Match (coming soon)"),
     ];
     let components = serenity::CreateActionRow::Buttons(buttons);
+    let embed = serenity::CreateEmbed::new()
+        .color(serenity::Color::DARK_ORANGE)
+        .field("PVP Bot: Main Menu", "Welcome to the main menu. Do you want to start an unranked or ranked match?", false);
 
-    let reply = poise::CreateReply::default().components(vec![components]);
+    let reply = poise::CreateReply::default()
+        .embed(embed)
+        .components(vec![components]);
 
     ctx.send(reply).await?;
 
@@ -253,6 +258,7 @@ pub async fn main_menu(ctx: Context<'_>) -> Result<(), Error> {
                 ),
             )
             .await?;
+            break;
         } else if mci.data.custom_id == "ranked_match" {
             mci.create_response(
                 ctx.serenity_context(),
@@ -262,6 +268,7 @@ pub async fn main_menu(ctx: Context<'_>) -> Result<(), Error> {
                 ),
             )
             .await?;
+            break;
         }
     }
 
