@@ -233,7 +233,15 @@ pub async fn rm(
 pub async fn button_test(
     ctx: Context<'_>,
 ) -> Result<(), Error> {
-    todo!();
+    let button = serenity::CreateButton::new("test_modal")
+        .label("Test Button");
+    let components = serenity::CreateActionRow::Buttons(vec![button]);
+
+    let reply = poise::CreateReply::default()
+        .components(vec![components])
+        .content("Hi. This button doe nothing.");
+
+    ctx.send(reply).await?;
     Ok(())
 }
 
