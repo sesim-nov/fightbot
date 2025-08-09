@@ -78,5 +78,37 @@ async fn draw_casual_menu(ctx: Context<'_>, mci: ComponentInteraction) -> Result
         .embed(embed);
     let resp = CreateInteractionResponse::UpdateMessage(resp_msg);
     mci.create_response(ctx.serenity_context(), resp).await?;
+
+    casual_menu_responder(ctx).await?;
+    Ok(())
+}
+
+async fn casual_menu_responder(ctx: Context<'_>) -> Result<(), Error> {
+    while let Some(mci) = serenity::ComponentInteractionCollector::new(ctx)
+        .timeout(std::time::Duration::from_secs(120))
+        .custom_ids(vec!["casual_menu".to_string()])
+        .await
+    {
+        let team_size: usize =
+            if let serenity::ComponentInteractionDataKind::StringSelect { values } = &mci.data.kind
+            {
+                values[0].parse()?
+            } else {
+                0
+            };
+        mci.create_response(
+            ctx,
+            CreateInteractionResponse::UpdateMessage(
+                CreateInteractionResponseMessage::new()
+                    .content(format!(
+                        "This is where the {team_size}v{team_size} code will start."
+                    ))
+                    .embeds(Vec::new())
+                    .components(Vec::new()),
+            ),
+        )
+        .await?;
+        break;
+    }
     Ok(())
 }
