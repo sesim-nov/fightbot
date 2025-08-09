@@ -59,6 +59,7 @@ async fn main() {
                     )
                     .await?;
                 };
+                println!("Starting app...");
                 Ok(Data {
                     queues: Arc::new(Mutex::new(HashMap::new())),
                 })
