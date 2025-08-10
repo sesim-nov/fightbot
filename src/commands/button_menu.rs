@@ -107,14 +107,14 @@ async fn handle_pvp_match(
     mci: ComponentInteraction,
     team_size: usize,
 ) -> Result<(), Error> {
+    let match_size = 2 * team_size;
     let embed = CreateEmbed::new().fields(vec![
         (
             format!("PvP Match: {team_size}v{team_size}"),
             "Welcome to this PVP Match.",
             false,
         ),
-        ("Team 1".to_string(), "Guy 1", true),
-        ("Team 2".to_string(), "Guy 2", true),
+        (format!("Registered CMDRs (2/{match_size})"), "Guy 1\nGuy 2", true),
         (
             "".to_string(),
             "Use the buttons below to manage this match",
@@ -124,7 +124,9 @@ async fn handle_pvp_match(
     mci.create_response(
         ctx,
         CreateInteractionResponse::UpdateMessage(
-            CreateInteractionResponseMessage::new().embed(embed),
+            CreateInteractionResponseMessage::new()
+                .embed(embed)
+                .components(Vec::new()),
         ),
     )
     .await?;
