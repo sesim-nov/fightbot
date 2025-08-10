@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use poise::serenity_prelude::{CreateEmbed, UserId};
+use poise::serenity_prelude::{CreateEmbed, Mentionable, UserId};
 use rand::seq::SliceRandom;
 use uuid::Uuid;
 
@@ -49,6 +49,15 @@ impl PVPFight {
         PVPTeams(combatants, other_combatants)
     }
 
+    /// Get a list of current participants as a newline separated string.
+    fn get_pool_list(&self) -> String {
+        self.team_pool
+            .iter()
+            .map(|x| x.mention().to_string())
+            .collect::<Vec<String>>()
+            .join("\n")
+    }
+
     // Check if we're ready to start a match.
     pub fn ready_to_start(&self) -> bool {
         self.pool_size <= self.team_pool.len()
@@ -57,28 +66,32 @@ impl PVPFight {
     // Generate and embed showing the progress of this PVP fight
     pub fn get_progress_embed(&self) -> CreateEmbed {
         let team_size = self.pool_size / 2;
+        let team_names = self.get_pool_list();
         CreateEmbed::new().fields(vec![
-        (
-            format!("PvP Match: {team_size}v{team_size}"),
-            "Welcome to this PVP Match.",
-            false,
-        ),
-        (
-            format!("Registered CMDRs (2/{})", self.pool_size),
-            "Guy 1\nGuy 2",
-            true,
-        ),
-        (
-            "".to_string(),
-            "Use the buttons below to manage this match",
-            false,
-        ),
-    ])
+            (
+                format!("PvP Match: {team_size}v{team_size}"),
+                "Welcome to this PVP Match.",
+                false,
+            ),
+            (
+                format!(
+                    "Registered CMDRs ({}/{})",
+                    self.team_pool.len(),
+                    self.pool_size
+                ),
+                &team_names,
+                true,
+            ),
+            (
+                "".to_string(),
+                "Use the buttons below to manage this match",
+                false,
+            ),
+        ])
     }
 
-    // Get the embed that lists the details for a match ready to start. 
+    // Get the embed that lists the details for a match ready to start.
     pub fn gen_start_embed(&self) -> CreateEmbed {
         todo!();
     }
 }
-
