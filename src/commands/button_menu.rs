@@ -102,9 +102,31 @@ async fn casual_menu_responder(ctx: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
-async fn handle_pvp_match(ctx: Context<'_>, mci: ComponentInteraction, team_size: usize) -> Result<(), Error> {
-    let embed = CreateEmbed::new()
-        .field("PvP Match", "PvP Match Test Embed", false);
-    mci.create_response(ctx, CreateInteractionResponse::UpdateMessage(CreateInteractionResponseMessage::new().embed(embed))).await?;
+async fn handle_pvp_match(
+    ctx: Context<'_>,
+    mci: ComponentInteraction,
+    team_size: usize,
+) -> Result<(), Error> {
+    let embed = CreateEmbed::new().fields(vec![
+        (
+            format!("PvP Match: {team_size}v{team_size}"),
+            "Welcome to this PVP Match.",
+            false,
+        ),
+        ("Team 1".to_string(), "Guy 1", true),
+        ("Team 2".to_string(), "Guy 2", true),
+        (
+            "".to_string(),
+            "Use the buttons below to manage this match",
+            false,
+        ),
+    ]);
+    mci.create_response(
+        ctx,
+        CreateInteractionResponse::UpdateMessage(
+            CreateInteractionResponseMessage::new().embed(embed),
+        ),
+    )
+    .await?;
     Ok(())
 }
