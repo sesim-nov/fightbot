@@ -92,23 +92,19 @@ async fn casual_menu_responder(ctx: Context<'_>) -> Result<(), Error> {
         let team_size: usize =
             if let serenity::ComponentInteractionDataKind::StringSelect { values } = &mci.data.kind
             {
-                values[0].parse()?
+                Ok(values[0].parse()?)
             } else {
-                0
-            };
-        mci.create_response(
-            ctx,
-            CreateInteractionResponse::UpdateMessage(
-                CreateInteractionResponseMessage::new()
-                    .content(format!(
-                        "This is where the {team_size}v{team_size} code will start."
-                    ))
-                    .embeds(Vec::new())
-                    .components(Vec::new()),
-            ),
-        )
-        .await?;
+                Err("Incorrect Interaction Data Kind")
+            }?;
+        handle_pvp_match(ctx, mci, team_size).await?;
         break;
     }
+    Ok(())
+}
+
+async fn handle_pvp_match(ctx: Context<'_>, mci: ComponentInteraction, team_size: usize) -> Result<(), Error> {
+    let embed = CreateEmbed::new()
+        .field("PvP Match", "PvP Match Test Embed", false);
+    mci.create_response(ctx, CreateInteractionResponse::UpdateMessage(CreateInteractionResponseMessage::new().embed(embed))).await?;
     Ok(())
 }
