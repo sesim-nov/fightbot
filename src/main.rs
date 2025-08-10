@@ -6,6 +6,8 @@ use poise::serenity_prelude as serenity;
 
 mod commands;
 
+mod pvp_fight;
+
 #[derive(Clone, Eq, PartialEq, Hash)]
 struct FightId {
     guild_id: serenity::GuildId,

@@ -9,3 +9,4 @@ rand = "0.8"
 dotenv = "0.15"
 async-trait = "0.1.88"
 poise = "0.6"
+uuid = { version = "1.17.0", features = ["v4"] }
