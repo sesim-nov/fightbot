@@ -53,11 +53,7 @@ impl PVPFight {
 
     /// Get a list of current participants as a newline separated string.
     fn get_pool_list(&self) -> String {
-        self.team_pool
-            .iter()
-            .map(|x| x.mention().to_string())
-            .collect::<Vec<String>>()
-            .join("\n")
+        to_mention_string(self.team_pool.iter().collect())
     }
 
     // Check if we're ready to start a match.
@@ -99,7 +95,17 @@ impl PVPFight {
     // Get the embed that lists the details for a match ready to start.
     pub fn get_start_embed(&mut self) -> CreateEmbed {
         self.fight_closed = true;
-        self.get_progress_embed()
+        let team_size = self.pool_size / 2;
+
+        let PVPTeams(team_a, team_b) = self.get_teams();
+        let team_a = to_mention_string(team_a.iter().collect());
+        let team_b = to_mention_string(team_b.iter().collect());
+
+        CreateEmbed::new().fields(vec![
+            ("Fight Start", format!("{team_size}v{team_size} fight has Started!"), false),
+            ("Team A", team_a, true),
+            ("Team B", team_b, true),
+        ])
     }
 
     // Cancel the fight and return a blank embed.
@@ -107,4 +113,13 @@ impl PVPFight {
         self.fight_closed = true;
         CreateEmbed::new().field("Fight Cancelled", "Fight has been cancelled", false)
     }
+}
+
+/// Convert a vector of UserIDs into a newline-separated string of mentions.
+fn to_mention_string(id_list: Vec<&UserId>) -> String {
+    id_list
+        .iter()
+        .map(|x| x.mention().to_string())
+        .collect::<Vec<String>>()
+        .join("\n")
 }

@@ -154,6 +154,7 @@ async fn handle_pvp_match(
         }?;
 
         let mut resp_msg = CreateInteractionResponseMessage::new().embed(new_embed);
+        // If the fight is closed, remove the buttons from the message. 
         if fight.closed() {
             resp_msg = resp_msg.components(Vec::new())
         }
