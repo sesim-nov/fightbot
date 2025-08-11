@@ -132,7 +132,7 @@ async fn handle_pvp_match(
     .await?;
 
     while let Some(mci) = serenity::ComponentInteractionCollector::new(ctx)
-        .timeout(std::time::Duration::from_secs(120))
+        .timeout(std::time::Duration::from_secs(600))
         .await
     {
         let new_embed = match mci.data.custom_id.as_str() {
