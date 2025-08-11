@@ -91,7 +91,7 @@ impl PVPFight {
     }
 
     // Get the embed that lists the details for a match ready to start.
-    pub fn gen_start_embed(&self) -> CreateEmbed {
+    pub fn get_start_embed(&self) -> CreateEmbed {
         todo!();
     }
 }

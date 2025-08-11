@@ -1,6 +1,8 @@
 use crate::{Context, Error};
 use poise::serenity_prelude::{
-    self as serenity, ComponentInteraction, CreateActionRow, CreateButton, CreateEmbed, CreateInteractionResponse, CreateInteractionResponseMessage, CreateSelectMenu, CreateSelectMenuOption
+    self as serenity, ComponentInteraction, CreateActionRow, CreateButton, CreateEmbed,
+    CreateInteractionResponse, CreateInteractionResponseMessage, CreateSelectMenu,
+    CreateSelectMenuOption,
 };
 
 use crate::commands::VALID_FIGHT_TYPES;
@@ -106,12 +108,17 @@ async fn handle_pvp_match(
     mci: ComponentInteraction,
     team_size: usize,
 ) -> Result<(), Error> {
-    let fight = crate::pvp_fight::PVPFight::new(team_size);
+    let mut fight = crate::pvp_fight::PVPFight::new(team_size);
     let embed = fight.get_progress_embed();
-    let buttons = vec![CreateButton::new("reg").label("Join"),
+    let buttons = vec![
+        CreateButton::new("reg").label("Join"),
         CreateButton::new("rm").label("Leave"),
-        CreateButton::new("start").label("Start Match").style(serenity::ButtonStyle::Danger),
-        CreateButton::new("cancel").label("Cancel").style(serenity::ButtonStyle::Danger),
+        CreateButton::new("start")
+            .label("Start Match")
+            .style(serenity::ButtonStyle::Danger),
+        CreateButton::new("cancel")
+            .label("Cancel")
+            .style(serenity::ButtonStyle::Danger),
     ];
     let action_row = CreateActionRow::Buttons(buttons);
     mci.create_response(
@@ -123,5 +130,32 @@ async fn handle_pvp_match(
         ),
     )
     .await?;
+
+    while let Some(mci) = serenity::ComponentInteractionCollector::new(ctx)
+        .timeout(std::time::Duration::from_secs(120))
+        .await
+    {
+        let new_embed = match mci.data.custom_id.as_str() {
+            "reg" => {
+                fight.reg(ctx.author().id)?;
+                if fight.ready_to_start() {
+                    Ok(fight.get_start_embed())
+                } else {
+                    Ok(fight.get_progress_embed())
+                }
+            }
+            "rm" => {
+                fight.rm(&ctx.author().id);
+                Ok(fight.get_progress_embed())
+            }
+            "start" => Ok(fight.get_start_embed()),
+            _ => Err("Bad Button Press"),
+        }?;
+
+        let resp_msg = CreateInteractionResponseMessage::new().embed(new_embed);
+
+        mci.create_response(ctx, CreateInteractionResponse::UpdateMessage(resp_msg))
+            .await?;
+    }
     Ok(())
 }
