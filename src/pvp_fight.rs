@@ -86,7 +86,7 @@ impl PVPFight {
             ),
             (
                 "".to_string(),
-                "Use the buttons below to manage this match",
+                "Use the buttons below to manage this match. You have 5 minutes to start the fight!",
                 false,
             ),
         ])
