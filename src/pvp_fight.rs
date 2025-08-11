@@ -12,6 +12,7 @@ pub struct PVPFight {
     id: Uuid,
     pool_size: usize,
     team_pool: HashSet<UserId>,
+    fight_closed: bool,
 }
 
 impl PVPFight {
@@ -21,6 +22,7 @@ impl PVPFight {
             id: Uuid::new_v4(),
             pool_size: 2 * team_size,
             team_pool: HashSet::new(),
+            fight_closed: false,
         }
     }
 
@@ -63,6 +65,10 @@ impl PVPFight {
         self.pool_size <= self.team_pool.len()
     }
 
+    pub fn closed(&self) -> bool {
+        self.fight_closed
+    }
+
     // Generate and embed showing the progress of this PVP fight
     pub fn get_progress_embed(&self) -> CreateEmbed {
         let team_size = self.pool_size / 2;
@@ -91,7 +97,14 @@ impl PVPFight {
     }
 
     // Get the embed that lists the details for a match ready to start.
-    pub fn get_start_embed(&self) -> CreateEmbed {
-        todo!();
+    pub fn get_start_embed(&mut self) -> CreateEmbed {
+        self.fight_closed = true;
+        self.get_progress_embed()
+    }
+
+    // Cancel the fight and return a blank embed.
+    pub fn get_cancel_embed(&mut self) -> CreateEmbed {
+        self.fight_closed = true;
+        CreateEmbed::new().field("Fight Cancelled", "Fight has been cancelled", false)
     }
 }

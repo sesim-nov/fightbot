@@ -149,13 +149,21 @@ async fn handle_pvp_match(
                 Ok(fight.get_progress_embed())
             }
             "start" => Ok(fight.get_start_embed()),
+            "cancel" => Ok(fight.get_cancel_embed()),
             _ => Err("Bad Button Press"),
         }?;
 
-        let resp_msg = CreateInteractionResponseMessage::new().embed(new_embed);
+        let mut resp_msg = CreateInteractionResponseMessage::new().embed(new_embed);
+        if fight.closed() {
+            resp_msg = resp_msg.components(Vec::new())
+        }
 
         mci.create_response(ctx, CreateInteractionResponse::UpdateMessage(resp_msg))
             .await?;
+
+        if fight.closed() {
+            break;
+        }
     }
     Ok(())
 }
