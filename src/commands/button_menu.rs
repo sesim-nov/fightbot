@@ -1,7 +1,6 @@
 use crate::{Context, Error};
 use poise::serenity_prelude::{
-    self as serenity, ComponentInteraction, CreateEmbed, CreateInteractionResponse,
-    CreateInteractionResponseMessage, CreateSelectMenu, CreateSelectMenuOption,
+    self as serenity, ComponentInteraction, CreateActionRow, CreateButton, CreateEmbed, CreateInteractionResponse, CreateInteractionResponseMessage, CreateSelectMenu, CreateSelectMenuOption
 };
 
 use crate::commands::VALID_FIGHT_TYPES;
@@ -109,12 +108,18 @@ async fn handle_pvp_match(
 ) -> Result<(), Error> {
     let fight = crate::pvp_fight::PVPFight::new(team_size);
     let embed = fight.get_progress_embed();
+    let buttons = vec![CreateButton::new("reg").label("Join"),
+        CreateButton::new("rm").label("Leave"),
+        CreateButton::new("start").label("Start Match").style(serenity::ButtonStyle::Danger),
+        CreateButton::new("cancel").label("Cancel").style(serenity::ButtonStyle::Danger),
+    ];
+    let action_row = CreateActionRow::Buttons(buttons);
     mci.create_response(
         ctx,
         CreateInteractionResponse::UpdateMessage(
             CreateInteractionResponseMessage::new()
                 .embed(embed)
-                .components(Vec::new()),
+                .components(vec![action_row]),
         ),
     )
     .await?;
