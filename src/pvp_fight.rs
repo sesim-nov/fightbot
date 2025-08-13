@@ -6,13 +6,20 @@ use uuid::Uuid;
 
 use crate::Error;
 
+pub enum FightState {
+    RegistrationOpen,
+    Started,
+    //Complete, <- Future state, to be used for ranked peeveepee
+    Canceled
+}
+
 pub struct PVPTeams(Vec<UserId>, Vec<UserId>);
 
 pub struct PVPFight {
     id: Uuid,
     pool_size: usize,
     team_pool: HashSet<UserId>,
-    fight_closed: bool,
+    fight_state: FightState,
 }
 
 impl PVPFight {
@@ -22,8 +29,12 @@ impl PVPFight {
             id: Uuid::new_v4(),
             pool_size: 2 * team_size,
             team_pool: HashSet::new(),
-            fight_closed: false,
+            fight_state: FightState::RegistrationOpen,
         }
+    }
+
+    pub fn set_state(&mut self, state: FightState) {
+        self.fight_state = state;
     }
 
     /// Register a participant
@@ -62,11 +73,15 @@ impl PVPFight {
     }
 
     pub fn closed(&self) -> bool {
-        self.fight_closed
+        if let FightState::RegistrationOpen = self.fight_state {
+            false
+        } else {
+            true
+        }
     }
 
     // Generate and embed showing the progress of this PVP fight
-    pub fn get_progress_embed(&self) -> CreateEmbed {
+    fn get_progress_embed(&self) -> CreateEmbed {
         let team_size = self.pool_size / 2;
         let team_names = self.get_pool_list();
         CreateEmbed::new().fields(vec![
@@ -93,8 +108,7 @@ impl PVPFight {
     }
 
     // Get the embed that lists the details for a match ready to start.
-    pub fn get_start_embed(&mut self) -> CreateEmbed {
-        self.fight_closed = true;
+    fn get_start_embed(&self) -> CreateEmbed {
         let team_size = self.pool_size / 2;
 
         let PVPTeams(team_a, team_b) = self.get_teams();
@@ -109,9 +123,18 @@ impl PVPFight {
     }
 
     // Cancel the fight and return a blank embed.
-    pub fn get_cancel_embed(&mut self) -> CreateEmbed {
-        self.fight_closed = true;
+    fn get_cancel_embed(&self) -> CreateEmbed {
         CreateEmbed::new().field("Fight Cancelled", "Fight has been cancelled", false)
+    }
+}
+
+impl From<&PVPFight> for CreateEmbed {
+    fn from(fight: &PVPFight) -> Self {
+        match fight.fight_state {
+            FightState::RegistrationOpen => fight.get_progress_embed(),
+            FightState::Started => fight.get_start_embed(),
+            FightState::Canceled => fight.get_cancel_embed(),
+        }
     }
 }
 

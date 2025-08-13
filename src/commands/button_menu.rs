@@ -1,4 +1,4 @@
-use crate::{Context, Error};
+use crate::{pvp_fight::{FightState}, Context, Error};
 use poise::serenity_prelude::{
     self as serenity, ComponentInteraction, CreateActionRow, CreateButton, CreateEmbed,
     CreateInteractionResponse, CreateInteractionResponseMessage, CreateSelectMenu,
@@ -109,7 +109,7 @@ async fn handle_pvp_match(
     team_size: usize,
 ) -> Result<(), Error> {
     let mut fight = crate::pvp_fight::PVPFight::new(team_size);
-    let embed = fight.get_progress_embed();
+    let embed = CreateEmbed::from(&fight);
     let buttons = vec![
         CreateButton::new("reg").label("Join"),
         CreateButton::new("rm").label("Leave"),
@@ -135,23 +135,20 @@ async fn handle_pvp_match(
         .timeout(std::time::Duration::from_secs(600))
         .await
     {
-        let new_embed = match mci.data.custom_id.as_str() {
+        match mci.data.custom_id.as_str() {
             "reg" => {
-                fight.reg(ctx.author().id)?;
-                if fight.ready_to_start() {
-                    Ok(fight.get_start_embed())
-                } else {
-                    Ok(fight.get_progress_embed())
-                }
+                Ok(fight.reg(ctx.author().id)?)
             }
             "rm" => {
                 fight.rm(&ctx.author().id);
-                Ok(fight.get_progress_embed())
+                Ok(())
             }
-            "start" => Ok(fight.get_start_embed()),
-            "cancel" => Ok(fight.get_cancel_embed()),
+            "start" => Ok(fight.set_state(FightState::Started)),
+            "cancel" => Ok(fight.set_state(FightState::Canceled)),
             _ => Err("Bad Button Press"),
         }?;
+
+        let new_embed = CreateEmbed::from(&fight);
 
         let mut resp_msg = CreateInteractionResponseMessage::new().embed(new_embed);
         // If the fight is closed, remove the buttons from the message. 
