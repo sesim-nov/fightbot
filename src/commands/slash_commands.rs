@@ -54,8 +54,9 @@ pub async fn reg(
             // is_already_registered is working correctly.
             fight.insert(UserId::from(&user));
             let men = user.mention();
-            let mut resp =
-                format!("Successfully registered {men} for a {team_size}v{team_size}").to_string();
+            let mut resp = vec![
+                format!("Successfully registered {men} for a {team_size}v{team_size}"),
+            ];
 
             // Check if the fight is full
             if fight.len() >= team_size * 2 {
@@ -64,20 +65,13 @@ pub async fn reg(
                 combatants.shuffle(&mut our_rng);
                 let center = combatants.len() / 2;
                 let other_combatants = combatants.split_off(center);
-                resp.push_str("\nMATCH START: \nTeam 1\n");
-                for x in combatants {
-                    let m = x.mention();
-                    resp.push_str(&format!("{m}\n"));
-                }
-                resp.push_str("TEAM 2:\n");
-                for x in other_combatants {
-                    let m = x.mention();
-                    resp.push_str(&format!("{m}\n"));
-                }
+                resp.push("\nMATCH START: \nTeam 1\n".to_owned());
+                resp.extend(combatants.iter().map(|x| x.mention().to_string()));
+                resp.extend(other_combatants.iter().map(|x| x.mention().to_string()));
                 // Clear queue
                 fight.clear();
             }
-            resp
+            resp.join("\n")
         }
     };
     ctx.say(response).await?;
