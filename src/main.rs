@@ -6,6 +6,8 @@ use poise::serenity_prelude as serenity;
 
 mod commands;
 
+mod pvp_fight;
+
 #[derive(Clone, Eq, PartialEq, Hash)]
 struct FightId {
     guild_id: serenity::GuildId,
@@ -21,6 +23,7 @@ type Context<'a> = poise::Context<'a, Data, Error>;
 #[tokio::main]
 async fn main() {
     dotenv().ok();
+    tracing_subscriber::fmt::init();
     let token = std::env::var("DISCORD_TOKEN").expect("missing DISCORD_TOKEN");
     let intents = serenity::GatewayIntents::non_privileged();
     //intents.insert(serenity::GatewayIntents::MESSAGE_CONTENT); <- uncomment to add message content parsing for slash commands.
@@ -36,9 +39,12 @@ async fn main() {
             commands::cancel(),
             commands::start(),
             commands::rm(),
+            commands::main_menu(),
         ],
         pre_command: |ctx| {
-            Box::pin(async move { println!("Executing command: {}", ctx.command().qualified_name) })
+            Box::pin(async move {
+                tracing::info!("Executing command: {}", ctx.command().qualified_name)
+            })
         },
         prefix_options: prefix_options,
         ..Default::default()
@@ -49,6 +55,16 @@ async fn main() {
         .setup(|ctx, _ready, framework| {
             Box::pin(async move {
                 poise::builtins::register_globally(ctx, &framework.options().commands).await?;
+                if let Ok(guild_id_str) = std::env::var("TEST_GUILD_ID") {
+                    tracing::info!("Fast-registering to guild: {guild_id_str}");
+                    poise::builtins::register_in_guild(
+                        ctx,
+                        &framework.options().commands,
+                        serenity::GuildId::new(u64::from_str_radix(&guild_id_str, 10).unwrap()),
+                    )
+                    .await?;
+                };
+                tracing::info!("Starting Fightbot...");
                 Ok(Data {
                     queues: Arc::new(Mutex::new(HashMap::new())),
                 })
