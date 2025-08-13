@@ -6,7 +6,7 @@ use std::collections::{HashMap, HashSet};
 use std::sync::MutexGuard;
 
 /// Registers a commander for a fight
-#[poise::command(slash_command)]
+#[poise::command(slash_command, guild_only)]
 pub async fn reg(
     ctx: Context<'_>,
     #[description = "CMDRs per team (i.e. for 4v4 say '4')"] team_size: usize,
@@ -102,7 +102,7 @@ fn is_already_registered(
 }
 
 /// Cancels a given queue
-#[poise::command(slash_command)]
+#[poise::command(slash_command, guild_only)]
 pub async fn cancel(
     ctx: Context<'_>,
     #[description = "CMDRs per team (i.e. for 4v4 say '4')"] team_size: usize,
@@ -134,7 +134,7 @@ pub async fn cancel(
 }
 
 /// Force-starts queue even if a queue is not full.
-#[poise::command(slash_command)]
+#[poise::command(slash_command, guild_only)]
 pub async fn start(
     ctx: Context<'_>,
     #[description = "CMDRs per team (i.e. for 4v4 say '4')"] team_size: usize,
@@ -187,7 +187,7 @@ pub async fn start(
 }
 
 /// Removes target user from all server queues
-#[poise::command(slash_command)]
+#[poise::command(slash_command, guild_only)]
 pub async fn rm(
     ctx: Context<'_>,
     #[description = "Selected user, leave blank to krill yourself."] user: Option<serenity::User>,
