@@ -1,4 +1,4 @@
-use crate::{pvp_fight::{FightState}, Context, Error};
+use crate::{pvp_fight::FightState, Context, Error};
 use poise::serenity_prelude::{
     self as serenity, ComponentInteraction, CreateActionRow, CreateButton, CreateEmbed,
     CreateInteractionResponse, CreateInteractionResponseMessage, CreateSelectMenu,
@@ -136,9 +136,7 @@ async fn handle_pvp_match(
         .await
     {
         match mci.data.custom_id.as_str() {
-            "reg" => {
-                Ok(fight.reg(ctx.author().id)?)
-            }
+            "reg" => Ok(fight.reg(ctx.author().id)?),
             "rm" => {
                 fight.rm(&ctx.author().id);
                 Ok(())
@@ -151,7 +149,7 @@ async fn handle_pvp_match(
         let new_embed = CreateEmbed::from(&fight);
 
         let mut resp_msg = CreateInteractionResponseMessage::new().embed(new_embed);
-        // If the fight is closed, remove the buttons from the message. 
+        // If the fight is closed, remove the buttons from the message.
         if fight.closed() {
             resp_msg = resp_msg.components(Vec::new())
         }

@@ -42,7 +42,9 @@ async fn main() {
             commands::main_menu(),
         ],
         pre_command: |ctx| {
-            Box::pin(async move { tracing::info!("Executing command: {}", ctx.command().qualified_name) })
+            Box::pin(async move {
+                tracing::info!("Executing command: {}", ctx.command().qualified_name)
+            })
         },
         prefix_options: prefix_options,
         ..Default::default()

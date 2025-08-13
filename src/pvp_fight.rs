@@ -10,7 +10,7 @@ pub enum FightState {
     RegistrationOpen,
     Started,
     //Complete, <- Future state, to be used for ranked peeveepee
-    Canceled
+    Canceled,
 }
 
 pub struct PVPTeams(Vec<UserId>, Vec<UserId>);
@@ -116,7 +116,11 @@ impl PVPFight {
         let team_b = to_mention_string(team_b.iter().collect());
 
         CreateEmbed::new().fields(vec![
-            ("Fight Start", format!("{team_size}v{team_size} fight has Started!"), false),
+            (
+                "Fight Start",
+                format!("{team_size}v{team_size} fight has Started!"),
+                false,
+            ),
             ("Team A", team_a, true),
             ("Team B", team_b, true),
         ])

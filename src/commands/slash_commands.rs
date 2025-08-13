@@ -54,9 +54,9 @@ pub async fn reg(
             // is_already_registered is working correctly.
             fight.insert(UserId::from(&user));
             let men = user.mention();
-            let mut resp = vec![
-                format!("Successfully registered {men} for a {team_size}v{team_size}"),
-            ];
+            let mut resp = vec![format!(
+                "Successfully registered {men} for a {team_size}v{team_size}"
+            )];
 
             // Check if the fight is full
             if fight.len() >= team_size * 2 {
