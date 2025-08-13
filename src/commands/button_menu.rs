@@ -8,7 +8,7 @@ use poise::serenity_prelude::{
 use crate::commands::VALID_FIGHT_TYPES;
 
 /// Main Menu
-#[poise::command(slash_command)]
+#[poise::command(slash_command, guild_only)]
 pub async fn main_menu(ctx: Context<'_>) -> Result<(), Error> {
     let buttons = vec![
         serenity::CreateButton::new("casual_match").label("Casual Match"),
