@@ -1,6 +1,8 @@
 use std::collections::HashSet;
 
-use poise::serenity_prelude::{CreateEmbed, Mentionable, UserId};
+use poise::serenity_prelude::{
+    self as serenity, CreateActionRow, CreateButton, CreateEmbed, Mentionable, UserId,
+};
 use rand::seq::SliceRandom;
 use uuid::Uuid;
 
@@ -139,6 +141,22 @@ impl From<&PVPFight> for CreateEmbed {
             FightState::Started => fight.get_start_embed(),
             FightState::Canceled => fight.get_cancel_embed(),
         }
+    }
+}
+
+impl From<&PVPFight> for Vec<CreateActionRow> {
+    fn from(fight: &PVPFight) -> Self {
+        let buttons = vec![
+            CreateButton::new("reg").label("Join"),
+            CreateButton::new("rm").label("Leave"),
+            CreateButton::new("start")
+                .label("Start Match")
+                .style(serenity::ButtonStyle::Danger),
+            CreateButton::new("cancel")
+                .label("Cancel")
+                .style(serenity::ButtonStyle::Danger),
+        ];
+        vec![CreateActionRow::Buttons(buttons)]
     }
 }
 
