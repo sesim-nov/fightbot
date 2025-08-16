@@ -110,23 +110,13 @@ async fn handle_pvp_match(
 ) -> Result<(), Error> {
     let mut fight = crate::pvp_fight::PVPFight::new(team_size);
     let embed = CreateEmbed::from(&fight);
-    let buttons = vec![
-        CreateButton::new("reg").label("Join"),
-        CreateButton::new("rm").label("Leave"),
-        CreateButton::new("start")
-            .label("Start Match")
-            .style(serenity::ButtonStyle::Danger),
-        CreateButton::new("cancel")
-            .label("Cancel")
-            .style(serenity::ButtonStyle::Danger),
-    ];
-    let action_row = CreateActionRow::Buttons(buttons);
+    let components = Vec::<CreateActionRow>::from(&fight);
     mci.create_response(
         ctx,
         CreateInteractionResponse::UpdateMessage(
             CreateInteractionResponseMessage::new()
                 .embed(embed)
-                .components(vec![action_row]),
+                .components(components),
         ),
     )
     .await?;
@@ -147,12 +137,9 @@ async fn handle_pvp_match(
         }?;
 
         let new_embed = CreateEmbed::from(&fight);
+        let new_buttons = Vec::<CreateActionRow>::from(&fight);
 
-        let mut resp_msg = CreateInteractionResponseMessage::new().embed(new_embed);
-        // If the fight is closed, remove the buttons from the message.
-        if fight.closed() {
-            resp_msg = resp_msg.components(Vec::new())
-        }
+        let resp_msg = CreateInteractionResponseMessage::new().embed(new_embed).components(new_buttons);
 
         mci.create_response(ctx, CreateInteractionResponse::UpdateMessage(resp_msg))
             .await?;

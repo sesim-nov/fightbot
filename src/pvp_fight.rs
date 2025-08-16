@@ -1,6 +1,8 @@
 use std::collections::HashSet;
 
-use poise::serenity_prelude::{CreateEmbed, Mentionable, UserId};
+use poise::serenity_prelude::{
+    self as serenity, CreateActionRow, CreateButton, CreateEmbed, Mentionable, UserId,
+};
 use rand::seq::SliceRandom;
 use uuid::Uuid;
 
@@ -130,6 +132,21 @@ impl PVPFight {
     fn get_cancel_embed(&self) -> CreateEmbed {
         CreateEmbed::new().field("Fight Cancelled", "Fight has been cancelled", false)
     }
+
+    /// Get control buttons for registration.
+    fn get_reg_buttons(&self) -> Vec<CreateActionRow>{
+        let buttons = vec![
+            CreateButton::new("reg").label("Join"),
+            CreateButton::new("rm").label("Leave"),
+            CreateButton::new("start")
+                .label("Start Match")
+                .style(serenity::ButtonStyle::Danger),
+            CreateButton::new("cancel")
+                .label("Cancel")
+                .style(serenity::ButtonStyle::Danger),
+        ];
+        vec![CreateActionRow::Buttons(buttons)]
+    }
 }
 
 impl From<&PVPFight> for CreateEmbed {
@@ -138,6 +155,15 @@ impl From<&PVPFight> for CreateEmbed {
             FightState::RegistrationOpen => fight.get_progress_embed(),
             FightState::Started => fight.get_start_embed(),
             FightState::Canceled => fight.get_cancel_embed(),
+        }
+    }
+}
+
+impl From<&PVPFight> for Vec<CreateActionRow> {
+    fn from(fight: &PVPFight) -> Self {
+        match fight.fight_state {
+            FightState::RegistrationOpen => fight.get_reg_buttons(),
+            _ => Vec::new(),
         }
     }
 }
