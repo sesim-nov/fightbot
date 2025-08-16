@@ -1,5 +1,5 @@
 use crate::{
-    pvp_fight::{FightKind, FightState},
+    pvp_fight::{FightKind, FightState, PVPFight},
     Context, Error,
 };
 use poise::serenity_prelude::{
@@ -40,8 +40,10 @@ async fn main_menu_responder(ctx: Context<'_>) -> Result<(), Error> {
         .timeout(std::time::Duration::from_secs(120))
         .await
     {
+        let fight = PVPFight::new();
         if mci.data.custom_id == "casual_match" {
-            draw_casual_menu(ctx, mci).await?;
+            let fight = fight.fight_kind(FightKind::Casual);
+            draw_team_size_menu(ctx, mci, fight).await?;
             break;
         } else if mci.data.custom_id == "ranked_match" {
             mci.create_response(
@@ -58,9 +60,9 @@ async fn main_menu_responder(ctx: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
-async fn draw_casual_menu(ctx: Context<'_>, mci: ComponentInteraction) -> Result<(), Error> {
+async fn draw_team_size_menu(ctx: Context<'_>, mci: ComponentInteraction, fight: PVPFight) -> Result<(), Error> {
     let embed = CreateEmbed::new().color(serenity::Color::DARK_GREEN).field(
-        "Casual Menu",
+        "Team Size Select Menu",
         "Select the Team Size",
         false,
     );
@@ -83,11 +85,11 @@ async fn draw_casual_menu(ctx: Context<'_>, mci: ComponentInteraction) -> Result
     let resp = CreateInteractionResponse::UpdateMessage(resp_msg);
     mci.create_response(ctx.serenity_context(), resp).await?;
 
-    casual_menu_responder(ctx).await?;
+    team_size_menu_responder(ctx, fight).await?;
     Ok(())
 }
 
-async fn casual_menu_responder(ctx: Context<'_>) -> Result<(), Error> {
+async fn team_size_menu_responder(ctx: Context<'_>, fight: PVPFight) -> Result<(), Error> {
     while let Some(mci) = serenity::ComponentInteractionCollector::new(ctx)
         .timeout(std::time::Duration::from_secs(120))
         .custom_ids(vec!["casual_menu".to_string()])
@@ -100,7 +102,8 @@ async fn casual_menu_responder(ctx: Context<'_>) -> Result<(), Error> {
             } else {
                 Err("Incorrect Interaction Data Kind")
             }?;
-        handle_pvp_match(ctx, mci, team_size, FightKind::Casual).await?;
+        let fight = fight.team_size(team_size);
+        handle_pvp_match(ctx, mci, fight).await?;
         break;
     }
     Ok(())
@@ -109,12 +112,8 @@ async fn casual_menu_responder(ctx: Context<'_>) -> Result<(), Error> {
 async fn handle_pvp_match(
     ctx: Context<'_>,
     mci: ComponentInteraction,
-    team_size: usize,
-    fight_kind: FightKind,
+    mut fight: PVPFight,
 ) -> Result<(), Error> {
-    let mut fight = crate::pvp_fight::PVPFight::new()
-        .team_size(team_size)
-        .fight_kind(fight_kind);
     let embed = CreateEmbed::from(&fight);
     let components = Vec::<CreateActionRow>::from(&fight);
     mci.create_response(
