@@ -8,6 +8,9 @@ use uuid::Uuid;
 
 use crate::Error;
 
+mod result;
+use result::*;
+
 pub enum FightState {
     RegistrationOpen,
     Started,
@@ -28,6 +31,8 @@ pub struct PVPFight {
     team_pool: HashSet<UserId>,
     fight_state: FightState,
     fight_kind: FightKind,
+    teams: Option<PVPTeams>,
+    votes: Option<Votes>,
 }
 
 impl PVPFight {
@@ -97,7 +102,7 @@ impl PVPFight {
                 _ => true,
             },
         }
-    }
+    }   
 
     // Generate and embed showing the progress of this PVP fight
     fn get_progress_embed(&self) -> CreateEmbed {
@@ -192,6 +197,8 @@ impl std::default::Default for PVPFight {
             pool_size: 2,
             fight_state: FightState::RegistrationOpen,
             fight_kind: FightKind::Casual,
+            teams: None,
+            votes: None,
         }
     }
 }
