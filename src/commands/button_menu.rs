@@ -41,21 +41,14 @@ async fn main_menu_responder(ctx: Context<'_>) -> Result<(), Error> {
         .await
     {
         let fight = PVPFight::new();
-        if mci.data.custom_id == "casual_match" {
-            let fight = fight.fight_kind(FightKind::Casual);
-            draw_team_size_menu(ctx, mci, fight).await?;
-            break;
-        } else if mci.data.custom_id == "ranked_match" {
-            mci.create_response(
-                ctx.serenity_context(),
-                serenity::CreateInteractionResponse::Message(
-                    serenity::CreateInteractionResponseMessage::new()
-                        .content("Let's get sweaty, baby."),
-                ),
-            )
-            .await?;
-            break;
-        }
+        let fight_kind = match mci.data.custom_id.as_str() {
+            "casual_match" => Ok(FightKind::Casual),
+            "ranked_match" => Ok(FightKind::Ranked),
+            _ => Err("Invalid option selected")
+        }?;
+        let fight = fight.fight_kind(fight_kind);
+        draw_team_size_menu(ctx, mci, fight).await?;
+        break;
     }
     Ok(())
 }
