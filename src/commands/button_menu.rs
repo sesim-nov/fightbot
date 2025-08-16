@@ -44,7 +44,7 @@ async fn main_menu_responder(ctx: Context<'_>) -> Result<(), Error> {
         let fight_kind = match mci.data.custom_id.as_str() {
             "casual_match" => Ok(FightKind::Casual),
             "ranked_match" => Ok(FightKind::Ranked),
-            _ => Err("Invalid option selected")
+            _ => Err("Invalid option selected"),
         }?;
         let fight = fight.fight_kind(fight_kind);
         draw_team_size_menu(ctx, mci, fight).await?;
@@ -53,7 +53,11 @@ async fn main_menu_responder(ctx: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
-async fn draw_team_size_menu(ctx: Context<'_>, mci: ComponentInteraction, fight: PVPFight) -> Result<(), Error> {
+async fn draw_team_size_menu(
+    ctx: Context<'_>,
+    mci: ComponentInteraction,
+    fight: PVPFight,
+) -> Result<(), Error> {
     let embed = CreateEmbed::new().color(serenity::Color::DARK_GREEN).field(
         "Team Size Select Menu",
         "Select the Team Size",
@@ -131,6 +135,8 @@ async fn handle_pvp_match(
             }
             "start" => Ok(fight.set_state(FightState::Started)),
             "cancel" => Ok(fight.set_state(FightState::Canceled)),
+            "a_wins" => Ok(fight.set_state(FightState::Complete)),
+            "b_wins" => Ok(fight.set_state(FightState::Complete)),
             _ => Err("Bad Button Press"),
         }?;
 

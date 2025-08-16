@@ -11,7 +11,7 @@ use crate::Error;
 pub enum FightState {
     RegistrationOpen,
     Started,
-    //Complete, <- Future state, to be used for ranked peeveepee
+    Complete,
     Canceled,
 }
 
@@ -86,10 +86,16 @@ impl PVPFight {
     }
 
     pub fn closed(&self) -> bool {
-        if let FightState::RegistrationOpen = self.fight_state {
-            false
-        } else {
-            true
+        match self.fight_kind {
+            FightKind::Casual => match self.fight_state {
+                FightState::RegistrationOpen => false,
+                _ => true,
+            },
+            FightKind::Ranked => match self.fight_state {
+                FightState::RegistrationOpen => false,
+                FightState::Started => false,
+                _ => true,
+            },
         }
     }
 
@@ -144,6 +150,15 @@ impl PVPFight {
         CreateEmbed::new().field("Fight Cancelled", "Fight has been cancelled", false)
     }
 
+    // Cancel the fight and return a blank embed.
+    fn get_complete_embed(&self) -> CreateEmbed {
+        CreateEmbed::new().field(
+            "Fight Complete",
+            "Fight has been closed and recorded",
+            false,
+        )
+    }
+
     /// Get control buttons for registration.
     fn get_reg_buttons(&self) -> Vec<CreateActionRow> {
         let buttons = vec![
@@ -163,7 +178,7 @@ impl PVPFight {
         let buttons = vec![
             CreateButton::new("a_wins").label("Vote Team A"),
             CreateButton::new("b_wins").label("Vote Team B"),
-            CreateButton::new("cancel").label("Cancel Fight")
+            CreateButton::new("cancel").label("Cancel Fight"),
         ];
         vec![CreateActionRow::Buttons(buttons)]
     }
@@ -187,6 +202,7 @@ impl From<&PVPFight> for CreateEmbed {
             FightState::RegistrationOpen => fight.get_progress_embed(),
             FightState::Started => fight.get_start_embed(),
             FightState::Canceled => fight.get_cancel_embed(),
+            FightState::Complete => fight.get_complete_embed(),
         }
     }
 }
