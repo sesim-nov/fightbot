@@ -15,6 +15,11 @@ pub enum FightState {
     Canceled,
 }
 
+pub enum FightKind {
+    Casual,
+    Ranked,
+}
+
 pub struct PVPTeams(Vec<UserId>, Vec<UserId>);
 
 pub struct PVPFight {
@@ -22,17 +27,23 @@ pub struct PVPFight {
     pool_size: usize,
     team_pool: HashSet<UserId>,
     fight_state: FightState,
+    fight_kind: FightKind,
 }
 
 impl PVPFight {
     /// Instance a new fight
-    pub fn new(team_size: usize) -> Self {
-        Self {
-            id: Uuid::new_v4(),
-            pool_size: 2 * team_size,
-            team_pool: HashSet::new(),
-            fight_state: FightState::RegistrationOpen,
-        }
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn team_size(mut self, ts: usize) -> Self {
+        self.pool_size = ts * 2;
+        self
+    }
+
+    pub fn fight_kind(mut self, fk: FightKind) -> Self {
+        self.fight_kind = fk;
+        self
     }
 
     pub fn set_state(&mut self, state: FightState) {
@@ -134,7 +145,7 @@ impl PVPFight {
     }
 
     /// Get control buttons for registration.
-    fn get_reg_buttons(&self) -> Vec<CreateActionRow>{
+    fn get_reg_buttons(&self) -> Vec<CreateActionRow> {
         let buttons = vec![
             CreateButton::new("reg").label("Join"),
             CreateButton::new("rm").label("Leave"),
@@ -146,6 +157,22 @@ impl PVPFight {
                 .style(serenity::ButtonStyle::Danger),
         ];
         vec![CreateActionRow::Buttons(buttons)]
+    }
+
+    fn get_result_buttons(&self) -> Vec<CreateActionRow> {
+        Vec::new()
+    }
+}
+
+impl std::default::Default for PVPFight {
+    fn default() -> Self {
+        Self {
+            team_pool: HashSet::new(),
+            id: uuid::Uuid::new_v4(),
+            pool_size: 2,
+            fight_state: FightState::RegistrationOpen,
+            fight_kind: FightKind::Casual,
+        }
     }
 }
 
@@ -163,7 +190,10 @@ impl From<&PVPFight> for Vec<CreateActionRow> {
     fn from(fight: &PVPFight) -> Self {
         match fight.fight_state {
             FightState::RegistrationOpen => fight.get_reg_buttons(),
-            _ => Vec::new(),
+            _ => match fight.fight_kind {
+                FightKind::Casual => Vec::new(),
+                FightKind::Ranked => fight.get_result_buttons(),
+            },
         }
     }
 }

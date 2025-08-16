@@ -1,4 +1,7 @@
-use crate::{pvp_fight::FightState, Context, Error};
+use crate::{
+    pvp_fight::{FightKind, FightState},
+    Context, Error,
+};
 use poise::serenity_prelude::{
     self as serenity, ComponentInteraction, CreateActionRow, CreateButton, CreateEmbed,
     CreateInteractionResponse, CreateInteractionResponseMessage, CreateSelectMenu,
@@ -97,7 +100,7 @@ async fn casual_menu_responder(ctx: Context<'_>) -> Result<(), Error> {
             } else {
                 Err("Incorrect Interaction Data Kind")
             }?;
-        handle_pvp_match(ctx, mci, team_size).await?;
+        handle_pvp_match(ctx, mci, team_size, FightKind::Casual).await?;
         break;
     }
     Ok(())
@@ -107,8 +110,11 @@ async fn handle_pvp_match(
     ctx: Context<'_>,
     mci: ComponentInteraction,
     team_size: usize,
+    fight_kind: FightKind,
 ) -> Result<(), Error> {
-    let mut fight = crate::pvp_fight::PVPFight::new(team_size);
+    let mut fight = crate::pvp_fight::PVPFight::new()
+        .team_size(team_size)
+        .fight_kind(fight_kind);
     let embed = CreateEmbed::from(&fight);
     let components = Vec::<CreateActionRow>::from(&fight);
     mci.create_response(
@@ -139,7 +145,9 @@ async fn handle_pvp_match(
         let new_embed = CreateEmbed::from(&fight);
         let new_buttons = Vec::<CreateActionRow>::from(&fight);
 
-        let resp_msg = CreateInteractionResponseMessage::new().embed(new_embed).components(new_buttons);
+        let resp_msg = CreateInteractionResponseMessage::new()
+            .embed(new_embed)
+            .components(new_buttons);
 
         mci.create_response(ctx, CreateInteractionResponse::UpdateMessage(resp_msg))
             .await?;
