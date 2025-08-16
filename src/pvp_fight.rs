@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use poise::serenity_prelude::{
-    self as serenity, CreateActionRow, CreateButton, CreateEmbed, Mentionable, UserId,
+    self as serenity, CreateActionRow, CreateButton, CreateEmbed, Mentionable, Team, UserId,
 };
 use rand::seq::SliceRandom;
 use uuid::Uuid;

@@ -7,6 +7,7 @@ use poise::serenity_prelude as serenity;
 mod commands;
 
 mod pvp_fight;
+mod pvp_result;
 
 #[derive(Clone, Eq, PartialEq, Hash)]
 struct FightId {
