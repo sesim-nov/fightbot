@@ -160,7 +160,12 @@ impl PVPFight {
     }
 
     fn get_result_buttons(&self) -> Vec<CreateActionRow> {
-        Vec::new()
+        let buttons = vec![
+            CreateButton::new("a_wins").label("Vote Team A"),
+            CreateButton::new("b_wins").label("Vote Team B"),
+            CreateButton::new("cancel").label("Cancel Fight")
+        ];
+        vec![CreateActionRow::Buttons(buttons)]
     }
 }
 
@@ -190,10 +195,11 @@ impl From<&PVPFight> for Vec<CreateActionRow> {
     fn from(fight: &PVPFight) -> Self {
         match fight.fight_state {
             FightState::RegistrationOpen => fight.get_reg_buttons(),
-            _ => match fight.fight_kind {
+            FightState::Started => match fight.fight_kind {
                 FightKind::Casual => Vec::new(),
                 FightKind::Ranked => fight.get_result_buttons(),
             },
+            _ => Vec::new(),
         }
     }
 }
