@@ -1,5 +1,5 @@
 use crate::{
-    pvp_fight::{FightKind, FightState, PVPFight},
+    pvp_fight::{result::TeamName, FightKind, FightState, PVPFight},
     Context, Error,
 };
 use poise::serenity_prelude::{
@@ -135,8 +135,8 @@ async fn handle_pvp_match(
             }
             "start" => Ok(fight.set_state(FightState::Started)),
             "cancel" => Ok(fight.set_state(FightState::Canceled)),
-            "a_wins" => Ok(fight.set_state(FightState::Complete)),
-            "b_wins" => Ok(fight.set_state(FightState::Complete)),
+            "a_wins" => Ok(fight.cast_vote(ctx.author().id, TeamName::TeamA)),
+            "b_wins" => Ok(fight.cast_vote(ctx.author().id, TeamName::TeamB)),
             _ => Err("Bad Button Press"),
         }?;
 

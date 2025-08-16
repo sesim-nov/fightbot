@@ -8,7 +8,7 @@ use uuid::Uuid;
 
 use crate::Error;
 
-mod result;
+pub mod result;
 use result::*;
 
 pub enum FightState {
@@ -103,6 +103,10 @@ impl PVPFight {
             },
         }
     }   
+
+    pub fn cast_vote(&mut self, user: UserId, vote: TeamName) {
+        todo!();
+    }
 
     // Generate and embed showing the progress of this PVP fight
     fn get_progress_embed(&self) -> CreateEmbed {
