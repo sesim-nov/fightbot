@@ -92,7 +92,7 @@ impl PVPFight {
         to_mention_string(self.team_pool.iter().collect())
     }
 
-    // Check if we're ready to start a match.
+    /// Check if we're ready to start a match.
     pub fn ready_to_start(&self) -> bool {
         self.pool_size <= self.team_pool.len()
     }
@@ -111,11 +111,16 @@ impl PVPFight {
         }
     }   
 
+    /// Cast a vote for the winner provided the fight is finished. 
     pub fn cast_vote(&mut self, user: UserId, vote: TeamName) {
+        // Check that the fight is finished. 
+        // Check if user is part of the participant pool
+        // Assuming user is part of the pool, figure out which team they were on
+        // Set the vote of the team the participant is on to the provided value
         todo!();
     }
 
-    // Generate and embed showing the progress of this PVP fight
+    /// Generate and embed showing the progress of this PVP fight
     fn get_progress_embed(&self) -> CreateEmbed {
         let team_size = self.pool_size / 2;
         let team_names = self.get_pool_list();
@@ -142,7 +147,7 @@ impl PVPFight {
         ])
     }
 
-    // Get the embed that lists the details for a match ready to start.
+    /// Get the embed that lists the details for a match ready to start.
     fn get_start_embed(&self) -> Result<CreateEmbed, Error> {
         let team_size = self.pool_size / 2;
 
@@ -161,12 +166,12 @@ impl PVPFight {
         ]))
     }
 
-    // Cancel the fight and return a blank embed.
+    /// Cancel the fight and return a blank embed.
     fn get_cancel_embed(&self) -> CreateEmbed {
         CreateEmbed::new().field("Fight Cancelled", "Fight has been cancelled", false)
     }
 
-    // Cancel the fight and return a blank embed.
+    /// Complete the fight and return a blank embed.
     fn get_complete_embed(&self) -> CreateEmbed {
         CreateEmbed::new().field(
             "Fight Complete",
