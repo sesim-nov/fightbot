@@ -111,7 +111,7 @@ async fn handle_pvp_match(
     mci: ComponentInteraction,
     mut fight: PVPFight,
 ) -> Result<(), Error> {
-    let embed = CreateEmbed::from(&fight);
+    let embed = CreateEmbed::try_from(&fight)?;
     let components = Vec::<CreateActionRow>::from(&fight);
     mci.create_response(
         ctx,
@@ -133,14 +133,14 @@ async fn handle_pvp_match(
                 fight.rm(&ctx.author().id);
                 Ok(())
             }
-            "start" => Ok(fight.set_state(FightState::Started)),
+            "start" => Ok(fight.start()),
             "cancel" => Ok(fight.set_state(FightState::Canceled)),
             "a_wins" => Ok(fight.cast_vote(ctx.author().id, TeamName::TeamA)),
             "b_wins" => Ok(fight.cast_vote(ctx.author().id, TeamName::TeamB)),
             _ => Err("Bad Button Press"),
         }?;
 
-        let new_embed = CreateEmbed::from(&fight);
+        let new_embed = CreateEmbed::try_from(&fight)?;
         let new_buttons = Vec::<CreateActionRow>::from(&fight);
 
         let resp_msg = CreateInteractionResponseMessage::new()

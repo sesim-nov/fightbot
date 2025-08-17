@@ -25,6 +25,12 @@ pub enum FightKind {
 
 pub struct PVPTeams(Vec<UserId>, Vec<UserId>);
 
+impl PVPTeams {
+    pub fn new() -> Self {
+        Self(Vec::new(), Vec::new())
+    }
+}
+
 pub struct PVPFight {
     id: Uuid,
     pool_size: usize,
@@ -71,13 +77,14 @@ impl PVPFight {
     }
 
     /// Generate 2 random teams from the current pool.
-    fn get_teams(&self) -> PVPTeams {
+    pub fn start(&mut self) {
+        self.fight_state = FightState::Started;
         let mut rng = rand::thread_rng();
         let mut combatants: Vec<UserId> = self.team_pool.iter().map(|i| i.to_owned()).collect();
         combatants.shuffle(&mut rng);
         let center = combatants.len() / 2;
         let other_combatants = combatants.split_off(center);
-        PVPTeams(combatants, other_combatants)
+        self.teams = Some(PVPTeams(combatants, other_combatants));
     }
 
     /// Get a list of current participants as a newline separated string.
@@ -136,14 +143,14 @@ impl PVPFight {
     }
 
     // Get the embed that lists the details for a match ready to start.
-    fn get_start_embed(&self) -> CreateEmbed {
+    fn get_start_embed(&self) -> Result<CreateEmbed, Error> {
         let team_size = self.pool_size / 2;
 
-        let PVPTeams(team_a, team_b) = self.get_teams();
+        let PVPTeams(team_a, team_b) = self.teams.as_ref().ok_or_else(||"Failed to get teams")?;
         let team_a = to_mention_string(team_a.iter().collect());
         let team_b = to_mention_string(team_b.iter().collect());
 
-        CreateEmbed::new().fields(vec![
+        Ok(CreateEmbed::new().fields(vec![
             (
                 "Fight Start",
                 format!("{team_size}v{team_size} fight has Started!"),
@@ -151,7 +158,7 @@ impl PVPFight {
             ),
             ("Team A", team_a, true),
             ("Team B", team_b, true),
-        ])
+        ]))
     }
 
     // Cancel the fight and return a blank embed.
@@ -207,13 +214,14 @@ impl std::default::Default for PVPFight {
     }
 }
 
-impl From<&PVPFight> for CreateEmbed {
-    fn from(fight: &PVPFight) -> Self {
+impl TryFrom<&PVPFight> for CreateEmbed {
+    type Error = Error;
+    fn try_from(fight: &PVPFight) -> Result<Self, Self::Error> {
         match fight.fight_state {
-            FightState::RegistrationOpen => fight.get_progress_embed(),
+            FightState::RegistrationOpen => Ok(fight.get_progress_embed()),
             FightState::Started => fight.get_start_embed(),
-            FightState::Canceled => fight.get_cancel_embed(),
-            FightState::Complete => fight.get_complete_embed(),
+            FightState::Canceled => Ok(fight.get_cancel_embed()),
+            FightState::Complete => Ok(fight.get_complete_embed()),
         }
     }
 }
