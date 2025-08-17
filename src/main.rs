@@ -1,24 +1,10 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 use dotenv::dotenv;
 use poise::serenity_prelude as serenity;
 
-mod commands;
-
-mod pvp_fight;
-
-#[derive(Clone, Eq, PartialEq, Hash)]
-struct FightId {
-    guild_id: serenity::GuildId,
-    size: usize,
-}
-
-struct Data {
-    queues: Arc<Mutex<HashMap<FightId, HashSet<serenity::UserId>>>>,
-} // User data, which is stored and accessible in all command invocations
-type Error = Box<dyn std::error::Error + Send + Sync>;
-type Context<'a> = poise::Context<'a, Data, Error>;
+use team_queue_bot::{commands, Data};
 
 #[tokio::main]
 async fn main() {

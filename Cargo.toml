@@ -3,6 +3,12 @@ name = "team_queue_bot"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+
+[[bin]]
+name = "fightbot"
+path = "src/main.rs"
+
 [dependencies]
 tokio = { version = "1", features = ["full"] }
 rand = "0.8"

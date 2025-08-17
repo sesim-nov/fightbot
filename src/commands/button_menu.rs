@@ -3,7 +3,7 @@ use crate::{
     Context, Error,
 };
 use poise::serenity_prelude::{
-    self as serenity, ComponentInteraction, CreateActionRow, CreateButton, CreateEmbed,
+    self as serenity, ComponentInteraction, CreateActionRow, CreateEmbed,
     CreateInteractionResponse, CreateInteractionResponseMessage, CreateSelectMenu,
     CreateSelectMenuOption,
 };
