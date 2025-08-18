@@ -11,6 +11,7 @@ use crate::Error;
 pub mod result;
 use result::*;
 
+#[derive(PartialEq, Eq)]
 pub enum FightState {
     RegistrationOpen,
     Started,
@@ -28,6 +29,16 @@ pub struct PVPTeams(Vec<UserId>, Vec<UserId>);
 impl PVPTeams {
     pub fn new() -> Self {
         Self(Vec::new(), Vec::new())
+    }
+
+    pub fn get_team_of(&self, user_id: &UserId) -> Option<TeamName> {
+        if self.0.contains(user_id) {
+            Some(TeamName::TeamA)
+        } else if self.1.contains(user_id) {
+            Some(TeamName::TeamB)
+        } else {
+            None
+        }
     }
 }
 
@@ -59,6 +70,12 @@ impl PVPFight {
 
     pub fn set_state(&mut self, state: FightState) {
         self.fight_state = state;
+    }
+
+    fn create_votes(&mut self) {
+        if self.votes.is_none() {
+            self.votes = Some(Votes::new());
+        }
     }
 
     /// Register a participant
@@ -109,15 +126,24 @@ impl PVPFight {
                 _ => true,
             },
         }
-    }   
+    }
 
-    /// Cast a vote for the winner provided the fight is finished. 
-    pub fn cast_vote(&mut self, user: UserId, vote: TeamName) {
-        // Check that the fight is finished. 
-        // Check if user is part of the participant pool
-        // Assuming user is part of the pool, figure out which team they were on
-        // Set the vote of the team the participant is on to the provided value
-        todo!();
+    /// Cast a vote for the winner provided the fight is finished.
+    pub fn cast_vote(&mut self, user: UserId, vote: TeamName) -> Result<(), Error> {
+        // Check that the fight is finished.
+        if FightState::Started == self.fight_state && 
+            // Check if user is part of the participant pool
+            self.team_pool.contains(&user)
+        {
+            // Figure out which team they were on
+            let user_team = self.teams.as_ref().unwrap().get_team_of(&user).unwrap();
+            // Set the vote of the team the participant is on to the provided value
+            self.create_votes();
+            self.votes.as_mut().unwrap().set_vote_of(&user_team, vote);
+            Ok(())
+        } else {
+            Err("Votes are not yet castable.".into())
+        }
     }
 
     /// Generate and embed showing the progress of this PVP fight
@@ -151,7 +177,7 @@ impl PVPFight {
     fn get_start_embed(&self) -> Result<CreateEmbed, Error> {
         let team_size = self.pool_size / 2;
 
-        let PVPTeams(team_a, team_b) = self.teams.as_ref().ok_or_else(||"Failed to get teams")?;
+        let PVPTeams(team_a, team_b) = self.teams.as_ref().ok_or_else(|| "Failed to get teams")?;
         let team_a = to_mention_string(team_a.iter().collect());
         let team_b = to_mention_string(team_b.iter().collect());
 

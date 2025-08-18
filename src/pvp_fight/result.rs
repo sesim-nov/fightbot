@@ -1,4 +1,4 @@
-use poise::serenity_prelude::UserId;
+use poise::serenity_prelude::{Team, UserId};
 
 pub enum TeamName {
     TeamA,
@@ -15,6 +15,16 @@ impl Votes {
         Self {
             team_a_vote: None,
             team_b_vote: None,
+        }
+    }
+    pub fn set_vote_of(&mut self, voting_team: &TeamName, vote: TeamName) {
+        match voting_team {
+            TeamName::TeamA => {
+                self.team_a_vote = Some(vote);
+            }
+            TeamName::TeamB => {
+                self.team_b_vote = Some(vote);
+            }
         }
     }
 }

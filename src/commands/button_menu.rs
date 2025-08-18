@@ -12,7 +12,7 @@ use crate::commands::VALID_FIGHT_TYPES;
 
 /// Main Menu
 #[poise::command(slash_command, guild_only)]
-pub async fn main_menu(ctx: Context<'_>) -> Result<(), Error> {
+pub async fn single_fight(ctx: Context<'_>) -> Result<(), Error> {
     let buttons = vec![
         serenity::CreateButton::new("casual_match").label("Casual Match"),
         serenity::CreateButton::new("ranked_match").label("Sweatlord Match (coming soon)"),
@@ -135,8 +135,8 @@ async fn handle_pvp_match(
             }
             "start" => Ok(fight.start()),
             "cancel" => Ok(fight.set_state(FightState::Canceled)),
-            "a_wins" => Ok(fight.cast_vote(ctx.author().id, TeamName::TeamA)),
-            "b_wins" => Ok(fight.cast_vote(ctx.author().id, TeamName::TeamB)),
+            "a_wins" => Ok(fight.cast_vote(ctx.author().id, TeamName::TeamA)?),
+            "b_wins" => Ok(fight.cast_vote(ctx.author().id, TeamName::TeamB)?),
             _ => Err("Bad Button Press"),
         }?;
 

@@ -25,7 +25,7 @@ async fn main() {
             commands::cancel(),
             commands::start(),
             commands::rm(),
-            commands::main_menu(),
+            commands::single_fight(),
         ],
         pre_command: |ctx| {
             Box::pin(async move {
