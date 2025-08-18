@@ -1,5 +1,6 @@
 use poise::serenity_prelude::{Team, UserId};
 
+#[derive(Eq, PartialEq, Copy, Clone)]
 pub enum TeamName {
     TeamA,
     TeamB,
@@ -25,6 +26,20 @@ impl Votes {
             TeamName::TeamB => {
                 self.team_b_vote = Some(vote);
             }
+        }
+    }
+    pub fn is_unanimous(&self) -> bool {
+        if let (Some(a), Some(b)) = (self.team_a_vote.as_ref(), self.team_b_vote.as_ref()) {
+            *a == *b
+        } else {
+            false
+        }
+    }
+    pub fn get_winner(&self) -> Option<TeamName> {
+        if self.is_unanimous() {
+            Some(self.team_a_vote.unwrap())
+        } else {
+            None
         }
     }
 }

@@ -1,5 +1,5 @@
 use crate::{
-    pvp_fight::{result::TeamName, FightKind, FightState, PVPFight},
+    pvp_fight::{result::{PVPResult, TeamName}, FightKind, FightState, PVPFight},
     Context, Error,
 };
 use poise::serenity_prelude::{
@@ -154,5 +154,12 @@ async fn handle_pvp_match(
             break;
         }
     }
+    if let Ok(result) = PVPResult::try_from(&fight) {
+        handle_results(result).await?;
+    }
     Ok(())
+}
+
+async fn handle_results(result: PVPResult) -> Result<(), Error> {
+    todo!();
 }

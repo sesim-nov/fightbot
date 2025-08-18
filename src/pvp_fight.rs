@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use poise::serenity_prelude::{
-    self as serenity, CreateActionRow, CreateButton, CreateEmbed, Mentionable, Team, UserId,
+    self as serenity, CreateActionRow, CreateButton, CreateEmbed, Mentionable, UserId,
 };
 use rand::seq::SliceRandom;
 use uuid::Uuid;
@@ -139,7 +139,11 @@ impl PVPFight {
             let user_team = self.teams.as_ref().unwrap().get_team_of(&user).unwrap();
             // Set the vote of the team the participant is on to the provided value
             self.create_votes();
-            self.votes.as_mut().unwrap().set_vote_of(&user_team, vote);
+            let votes = self.votes.as_mut().unwrap();
+            votes.set_vote_of(&user_team, vote);
+            if votes.is_unanimous() {
+                self.set_state(FightState::Complete);
+            }
             Ok(())
         } else {
             Err("Votes are not yet castable.".into())
@@ -266,6 +270,26 @@ impl From<&PVPFight> for Vec<CreateActionRow> {
                 FightKind::Ranked => fight.get_result_buttons(),
             },
             _ => Vec::new(),
+        }
+    }
+}
+
+impl TryFrom<&PVPFight> for PVPResult {
+    type Error = Error;
+    fn try_from(fight: &PVPFight) -> Result<Self, Self::Error> {
+        if let Some(votes) = fight.votes.as_ref() {
+            if let Some(winning_team) = votes.get_winner() {
+                let teams = fight.teams.as_ref().unwrap();
+                let (winners, losers) = match winning_team {
+                    TeamName::TeamA => (teams.0.to_vec(), teams.1.to_vec()),
+                    TeamName::TeamB => (teams.1.to_vec(), teams.0.to_vec()),
+                };
+                Ok(Self::new(winners, losers))
+            } else {
+                Err("Votes are not yet complete and unanimous.".into())
+            }
+        } else {
+            Err("Error retreiving PVP result. It's possible the fight isn't in a state where results can be retreived.".into())
         }
     }
 }
